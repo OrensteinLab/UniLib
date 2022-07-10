@@ -1,4 +1,6 @@
-Introduction: 
+# Desert Sequence Generator
+
+**Introduction** 
 
 Here I developed a MATLAB code that generated a sequence devoid of any known yeast motifs (downloaded from: YeTFaSCo Version: 1.02), we termed it the desert sequence.
 
@@ -9,7 +11,7 @@ Sequence length can be adjustable, the code can be applied on number of shorter 
 also needs to get checked as desert), I found this makes overall shorter runtimes.
 
 
-How it works?
+**How it works?**
 
 To generate a desert sequence (devoid from any known yeast motifs, listed in YeastMotifs.xlsx file), start by converting 
 
