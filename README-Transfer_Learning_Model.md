@@ -31,11 +31,11 @@ The script performs the following main tasks:
    - Supports training on different datasets.
 
 4. **Ensemble Model**:
-   - Implements an ensemble method for model prediction. The script runs 100 iterations of model prediction and averages their prediction to improve performance.
+   - Implements an ensemble method for model prediction. The script runs 100 models with different initializations and averages their prediction to improve performance.
 
 5. **Prediction**:
    - Uses the trained model to predict mean FL values validation sequences.
-   - Calculates predictions based on  the average predictions for the original and reverse complement sequences, improving prediction accuracy.
+   - Calculates predictions based on the average predictions for the original and reverse complement sequences, improving prediction accuracy.
 
 6. **Evaluation**:
    - Calculates Pearson correlation coefficients between the model predictions and the true labels for the 2 different validation set.
