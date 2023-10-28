@@ -1,4 +1,4 @@
-# Transfer Learning on DNA Sequences Pipeline
+# Using Transfer Learning With DNA Expression Data - Pipeline
 
 This repository contains a Python script for analyzing DNA sequences using the Transfer Learning Technique. The script reads files with expression data of many regulatory DNA sequences, preprocesses the data, trains a convolutional neural network (CNN) model with the transfer learning technique, and performs predictions on 2 validation sets with regulatory DNA sequences.
 
