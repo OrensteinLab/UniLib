@@ -18,7 +18,7 @@ Before using the script, make sure you have the following libraries and tools in
 The script performs the following main tasks:
 
 1. **Data Preprocessing**:
-   - Reads a CSV file containing DNA sequences and expression measurements (e.g., mean fluorescence levels).
+   - Reads a CSV file containing DNA sequences and expression measurements (mean fluorescence levels).
    - Converts the DNA sequences to one-hot encodings, enabling them to be used as input to the machine learning model.
    - Prepares reverse complement sequences for training and prediction.
 
