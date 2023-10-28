@@ -60,7 +60,3 @@ To use this script, follow these steps:
 4. **Run the Script**:
    - Execute the script using a Python interpreter.
    - The script will perform data preprocessing, model training, and evaluation.
-
-5. **Review Results**:
-   - Review the Pearson correlation coefficients to assess the model's performance.
-   - Examine the CSV files with predictions results for further analysis.
