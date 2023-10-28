@@ -11,7 +11,6 @@ Before using the script, make sure you have the following libraries and tools in
 - [NumPy](https://numpy.org/): NumPy is used for numerical operations, including matrix and array operations.
 - [TensorFlow](https://www.tensorflow.org/): TensorFlow is used for building and training machine learning models.
 - [SciPy](https://www.scipy.org/): SciPy is used for scientific and technical computing and includes statistical functions.
-- [Google Cloud Storage](https://cloud.google.com/storage): If you're using this script to download data from a Google Cloud Storage bucket, you'll need to set up the Google Cloud Storage Python client.
 
 ## Script Description
 
