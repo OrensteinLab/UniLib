@@ -26,7 +26,7 @@ The script performs the following main tasks:
 
 3. **Model Training**:
    - Trains the CNN model on the preprocessed DNA sequences and their corresponding mean FL levels.
-   - Trains model with transfer learning technique on 3 different datasets with varying sizes and data quality
+   - Uses transfer learning approach - train model on 3 different datasets with varying sizes and data quality
 
 4. **Ensemble Model**:
    - Implements an ensemble method for model prediction. The script runs 100 models and averages their predictions to improve performance.
