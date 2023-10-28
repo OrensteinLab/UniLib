@@ -33,7 +33,7 @@ The script performs the following main tasks:
    - Implements an ensemble method for model prediction. The script runs 100 models and averages their predictions to improve performance.
 
 5. **Prediction**:
-   - Uses the trained model to predict mean FL values validation sequences.
+   - Uses the trained model to predict mean FL values for the validation sequences.
    - Calculates predictions based on the average predictions for the original and reverse complement sequences, improving prediction accuracy.
 
 6. **Evaluation**:
