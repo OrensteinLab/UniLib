@@ -119,7 +119,7 @@ def run_ensemble(train_sequences, train_labels, train_weights, test_sequences1, 
     return predictions300, predictions11
 
 # read csv with 6 million from de Boer-Regev experiment
-train1 = pd.read_csv("6_million_read.csv")
+train1 = pd.read_csv("6_million_reads.csv")
 sequences1 = list(train1['Sequence'])
 # create reverse complement sequences
 reverse_complement1 = list(map(reverse_complement, sequences1))
@@ -144,7 +144,7 @@ labels2 = np.array(mean_fl2 / max(mean_fl2))
 labels2 = np.concatenate((labels2, labels2))
 
 # read 2135 variants data with 20 barcodes
-train3 = pd.read_csv("train_set_variants_20_barcodes.csv")
+train3 = pd.read_csv("train_set_variants_22_barcodes.csv")
 weights3 = np.array(train3['total_reads'])
 weights3 = np.log(weights3)
 weights3 = weights3 / max(weights3)
