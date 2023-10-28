@@ -1,6 +1,6 @@
 # Using Transfer Learning With DNA Expression Data - Pipeline
 
-This repository contains a Python script for analyzing DNA sequences using the Transfer Learning Technique. The script reads files with expression data of many regulatory DNA sequences, preprocesses the data, trains a convolutional neural network (CNN) model with the transfer learning technique, and performs predictions on 2 validation sets with regulatory DNA sequences.
+This repository contains a Python script for a deep learning model on DNA expression data using the Transfer Learning Technique. The script reads files with expression data of many regulatory DNA sequences, preprocesses the data, trains a convolutional neural network (CNN) model with the transfer learning technique, and performs predictions on 2 validation sets with regulatory DNA sequences.
 
 ## Prerequisites
 
@@ -16,13 +16,13 @@ Before using the script, make sure you have the following libraries and tools in
 The script performs the following main tasks:
 
 1. **Data Preprocessing**:
-   - Reads a CSV file containing DNA sequences and expression measurements (mean fluorescence levels).
+   - Reads a CSV file containing regulatory DNA sequences and expression measurements (mean fluorescence levels).
    - Converts the DNA sequences to one-hot encodings, enabling them to be used as input to the machine learning model.
    - Prepares reverse complement sequences for training and prediction.
 
 2. **Machine Learning Model**:
    - Defines a convolutional neural network (CNN) model for the task.
-   - Trains model with transfer learning technique on 3 datasets with different sizes and data quality
+   - Trains model with transfer learning technique on 3 datasets with varying sizes and data quality
    - Compiles the model with appropriate loss and optimization functions.
 
 3. **Model Training**:
@@ -30,7 +30,7 @@ The script performs the following main tasks:
    - Supports training on different datasets.
 
 4. **Ensemble Model**:
-   - Implements an ensemble method for model prediction. The script runs 100 models with different initializations and averages their predictions to improve performance.
+   - Implements an ensemble method for model prediction. The script runs 100 models and averages their predictions to improve performance.
 
 5. **Prediction**:
    - Uses the trained model to predict mean FL values validation sequences.
