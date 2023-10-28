@@ -6,12 +6,11 @@ This repository contains a Python script for analyzing DNA sequences using a Tra
 
 Before using the script, make sure you have the following libraries and tools installed:
 
-- [Python](https://www.python.org/): The script is written in Python and requires a Python interpreter.
-- [Pandas](https://pandas.pydata.org/): This library is used for data manipulation and handling data frames.
-- [NumPy](https://numpy.org/): NumPy is used for numerical operations, including matrix and array operations.
-- [TensorFlow](https://www.tensorflow.org/): TensorFlow is used for building and training machine learning models.
-- [SciPy](https://www.scipy.org/): SciPy is used for scientific and technical computing and includes statistical functions.
-
+- [Python](https://www.python.org/): 
+- [Pandas](https://pandas.pydata.org/)
+- [NumPy](https://numpy.org/)
+- [TensorFlow](https://www.tensorflow.org/)
+- [SciPy](https://www.scipy.org/)
 ## Script Description
 
 The script performs the following main tasks:
