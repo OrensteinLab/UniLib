@@ -31,7 +31,7 @@ The script performs the following main tasks:
    - Supports training on different datasets.
 
 4. **Ensemble Model**:
-   - Implements an ensemble method for model prediction. The script runs 100 models with different initializations and averages their prediction to improve performance.
+   - Implements an ensemble method for model prediction. The script runs 100 models with different initializations and averages their predictions to improve performance.
 
 5. **Prediction**:
    - Uses the trained model to predict mean FL values validation sequences.
