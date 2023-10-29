@@ -122,7 +122,7 @@ def main():
     
     np.random.seed(42)
     # read csv of 6 million reads from Carl experiment
-    train1 = pd.read_csv("6_million_read.csv")
+    train1 = pd.read_csv("6_million_reada.csv")
     
     sequences1 = list(train1['Sequence']) # read sequences
     reverse_complement1 = list(map(reverse_complement, sequences1)) # create reverse complement sequences
@@ -156,7 +156,7 @@ def main():
     
     
     # read 2135 variants data with 22 barcodes
-    train3 = pd.read_csv("train_set_variants_20_barcodes.csv")
+    train3 = pd.read_csv("train_set_variants_22_barcodes.csv")
     
     sequences3 = list(train3['VariableRegion']) # read sequences
     reverse_complement3= list(map(reverse_complement, sequences3))# reverse complement
@@ -246,8 +246,8 @@ def main():
         # Use the function to make predictions
         predictions1, predictions2 = train_predict(sequences3, labels3, weights3, test_sequences1, comp_test_sequences1,
                                                      test_sequences2, comp_test_sequences2)
-        all_predictions1.append(predictions300)
-        all_predictions2.append(predictions11)
+        all_predictions1.append(predictions1)
+        all_predictions2.append(predictions2)
     
     # calculate mean over the predictions of the 100 models
     avg_predictions1 = np.mean(all_predictions1, axis=0)
