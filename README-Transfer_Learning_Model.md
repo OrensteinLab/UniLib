@@ -1,6 +1,6 @@
 # Using Transfer Learning With DNA Expression Data - Pipeline
 
-This repository contains a Python script for a deep learning model on DNA expression data that uses Transfer Learning. The script reads files with expression data of many DNA sequences, preprocesses the data, trains a convolutional neural network (CNN) model with the transfer learning technique, and performs predictions on 2 validation sets with regulatory DNA sequences.
+This repository contains a Python script for a deep learning model on DNA expression data that uses Transfer Learning. The script reads CSV files with expression data of many DNA sequences, preprocesses the data, trains a convolutional neural network (CNN) model with the transfer learning technique, and performs predictions on 2 validation sets with regulatory DNA sequences.
 
 ## Prerequisites
 
