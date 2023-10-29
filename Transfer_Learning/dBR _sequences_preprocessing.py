@@ -32,7 +32,7 @@ def main():
     new_df = pd.DataFrame({'Sequence': new_sequences, 'Mean_Fl': new_mean_fl}).reset_index(drop=True)
 
     # Save the new DataFrame to a CSV file named "6_million_read.csv" without including an index column.
-    new_df.to_csv("6_million_read.csv", index=False)
+    new_df.to_csv("6_million_reads.csv", index=False)
 
 if __name__ == '__main__':
     main()
