@@ -18,7 +18,7 @@ The script performs the following main tasks:
 1. **Data Preprocessing**:
    - Reads a CSV file containing regulatory DNA sequences and expression measurements (mean fluorescence levels).
    - Converts the DNA sequences to one-hot encodings, enabling them to be used as input to the machine learning model.
-   - Prepares reverse complement sequences for training and prediction.
+   - Augments train set and test sets with reverse complement sequences for training and prediction.
 
 2. **Machine Learning Model**:
    - Defines a convolutional neural network (CNN) model for the task.
@@ -29,7 +29,7 @@ The script performs the following main tasks:
    - Uses transfer learning approach - train model on 3 different datasets with varying sizes and data quality
 
 4. **Ensemble Model**:
-   - Implements an ensemble method for model prediction. The script runs 100 models and averages their predictions to improve performance.
+   - Implements an ensemble method for model prediction. The script runs 100 models and averages their predictions to improve the accuracy and robustness of the model.
 
 5. **Prediction**:
    - Uses the trained model to predict mean FL values for the validation sequences.
