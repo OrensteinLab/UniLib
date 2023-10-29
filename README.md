@@ -2,7 +2,7 @@
 
 **Introduction**
 
-We present a CNN desinged to predict the fluorescence levels on a scale of 1-4 of a DNA sequences.
+We present a CNN designed to predict the fluorescence levels on a scale of 1-4 of a DNA sequences.
 As a part of this study we generated dataset comprising of around 150k DNA sequences, each sequence is 116 long with the first 15 nt being a barcode,
 it is possible to ignore the first 15 nt (we discovered it doesnt change the results).
 
@@ -101,7 +101,9 @@ Once finished, the desert sequence will appear on the MATLAB's command window bu
 
 # Using Transfer Learning - Pipeline
 
-This repository contains a Python script for a deep learning model on DNA expression data that uses Transfer Learning. The script reads CSV files with expression data of many DNA sequences, preprocesses the data, trains a convolutional neural network (CNN) model with the transfer learning technique, and performs predictions on 2 validation sets with regulatory DNA sequences.
+**Introduction**
+
+We present a deep learning model that uses Transfer Learning on DNA expression data . The model is based on the CNN network we developed with the ommission of the 15-nt barcode, prediction of mean FL and the use of sample weights in training. The model is first trained on a dataset of ~6 million sequences from the DREAM challenge. Then it is trained on a dataset of all variants from an Oligo Library experiment (~67k sequences). And lastly, the model is trained on high precision data from the OL experiment (2.1K sequences).
 
 ## Prerequisites
 
