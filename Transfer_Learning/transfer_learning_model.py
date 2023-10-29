@@ -144,7 +144,7 @@ labels2 = np.array(mean_fl2 / max(mean_fl2))
 labels2 = np.concatenate((labels2, labels2))
 
 # read 2135 variants data with 20 barcodes
-train3 = pd.read_csv("train_set_variants_22_barcodes.csv")
+train3 = pd.read_csv("variants_22_barcodes.csv")
 weights3 = np.array(train3['total_reads'])
 weights3 = np.log(weights3)
 weights3 = weights3 / max(weights3)
@@ -158,7 +158,7 @@ labels3 = np.array(mean_fl3 / max(mean_fl3))
 labels3 = np.concatenate((labels3, labels3))
 
 # read 300 test variants
-test1 = pd.read_csv("300_test_variants.csv")
+test1 = pd.read_csv("300_high_quality_validation_variants.csv")
 test_sequences1 = list(test1['VariableRegion'])
 comp_test_sequences1 = list(map(reverse_complement, test_sequences1))  # reverse complements
 test_sequences1 = np.array(list(map(oneHotDeg, test_sequences1)))
