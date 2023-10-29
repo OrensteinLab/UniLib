@@ -99,7 +99,7 @@ It is important to save all files indluding functions and scripts in the same pa
 Once finished, the desert sequence will appear on the MATLAB's command window but also saved in a "Results" .txt file.
 
 
-# Using Transfer Learning With DNA Expression Data - Pipeline
+# Using Transfer Learning - Pipeline
 
 This repository contains a Python script for a deep learning model on DNA expression data that uses Transfer Learning. The script reads CSV files with expression data of many DNA sequences, preprocesses the data, trains a convolutional neural network (CNN) model with the transfer learning technique, and performs predictions on 2 validation sets with regulatory DNA sequences.
 
