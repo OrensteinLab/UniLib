@@ -36,7 +36,7 @@ The script performs the following main tasks:
    - Calculates predictions based on the average predictions for the original and reverse complement sequences, improving prediction accuracy.
 
 6. **Evaluation**:
-   - Calculates Pearson correlation coefficients between the model predictions and the true labels for the 2 different validation set.
+   - Calculates Pearson correlation coefficients between the model predictions and the true labels for the 2 validation sets.
    - Evaluates model performance.
 
 7. **Data Export**:
