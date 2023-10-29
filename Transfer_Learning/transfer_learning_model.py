@@ -78,7 +78,7 @@ def reverse_comp_prediction(model, test_sequences, comp_test_sequences):
     return predictions
 
 
-def run_ensemble(train_sequences, train_labels, train_weights, test_sequences1, comp_test_sequences1, test_sequences2,
+def train_predict(train_sequences, train_labels, train_weights, test_sequences1, comp_test_sequences1, test_sequences2,
                  comp_test_sequences2):
     """
     Run an ensemble of machine learning models and make predictions on test sequences.
@@ -118,115 +118,157 @@ def run_ensemble(train_sequences, train_labels, train_weights, test_sequences1, 
 
     return predictions300, predictions11
 
-# read csv with 6 million from de Boer-Regev experiment
-train1 = pd.read_csv("6_million_reads.csv")
-sequences1 = list(train1['Sequence'])
-# create reverse complement sequences
-reverse_complement1 = list(map(reverse_complement, sequences1))
-sequences1.extend(reverse_complement1)
-sequences1 = np.array(list(map(oneHotDeg, sequences1)))
-mean_fl1 = train1['Mean_Fl']
-labels1 = np.array(mean_fl1 / max(mean_fl1))
-labels1 = np.concatenate((labels1, labels1))
-
-# read 67k variant data from csv file
-train2 = pd.read_csv("all_variants_without_test.csv")
-weights2 = np.array(train2['total_reads'])
-weights2 = np.log(weights2)
-weights2 = weights2 / max(weights2)
-weights2 = np.concatenate((weights2, weights2))
-sequences2 = list(train2['VariableRegion'])
-reverse_complement2 = list(map(reverse_complement, sequences2))  # reverse complement sequences
-sequences2.extend(reverse_complement2)
-sequences2 = np.array(list(map(oneHotDeg, sequences2)))  # turn sequences to one hot vectors
-mean_fl2 = train2['Mean_FL']
-labels2 = np.array(mean_fl2 / max(mean_fl2))
-labels2 = np.concatenate((labels2, labels2))
-
-# read 2135 variants data with 20 barcodes
-train3 = pd.read_csv("variants_22_barcodes.csv")
-weights3 = np.array(train3['total_reads'])
-weights3 = np.log(weights3)
-weights3 = weights3 / max(weights3)
-weights3 = np.concatenate((weights3, weights3))
-sequences3 = list(train3['VariableRegion'])
-reverse_complement3 = list(map(reverse_complement, sequences3))  # reverse complement
-sequences3.extend(reverse_complement3)  # add reverse complements to sequences
-sequences3 = np.array(list(map(oneHotDeg, sequences3)))  # turn sequences to one hot vectors
-mean_fl3 = train3['Mean_FL']
-labels3 = np.array(mean_fl3 / max(mean_fl3))
-labels3 = np.concatenate((labels3, labels3))
-
-# read 300 test variants
-test1 = pd.read_csv("300_high_quality_validation_variants.csv")
-test_sequences1 = list(test1['VariableRegion'])
-comp_test_sequences1 = list(map(reverse_complement, test_sequences1))  # reverse complements
-test_sequences1 = np.array(list(map(oneHotDeg, test_sequences1)))
-comp_test_sequences1 = np.array(list(map(oneHotDeg, comp_test_sequences1))) # turn to one hot vectors
-mean_fl_test1 = test1['Mean_FL']
-test_labels1 = np.array(mean_fl_test1 / max(mean_fl_test1))
-
-# read 11 validation variants
-test2 = pd.read_csv('11_validation_variants.csv')
-test_sequences2 = list(test2['barcoded variant'])
-# exclude 15-nt barcode from the variant sequence
-sliced_sequences = []
-# Iterate through each sequence and ignore first 15 nucleotides
-for sequence in test_sequences2:
+def main():
+    
+    np.random.seed(42)
+    # read csv of 6 million reads from Carl experiment
+    train1 = pd.read_csv("/content/6_million_read.csv")
+    
+    sequences1 = list(train1['Sequence']) # read sequences
+    reverse_complement1 = list(map(reverse_complement, sequences1)) # create reverse complement sequences
+    sequences1.extend(reverse_complement1) # add reverse complements to sequences
+    sequences1 = np.array(list(map(oneHotDeg, sequences1))) # use the one-hot function on the sequences
+    
+    # read labels & normalize
+    mean_fl1 = train1['Mean_Fl']
+    labels1=np.array(mean_fl1/max(mean_fl1)) # divide each expression by the max
+    labels1=np.concatenate((labels1,labels1)) 
+    
+    
+    # read 67k variants data from csv file
+    train2 = pd.read_csv("/content/drive/My Drive/UNLIB_model/all_variants_without_test.csv")
+    
+    sequences2 = list(train2['VariableRegion']) # read sequences
+    reverse_complement2= list(map(reverse_complement, sequences2)) # create reverse complement sequences
+    sequences2.extend(reverse_complement2) # add reverse complement sequences to sequences
+    sequences2 = np.array(list(map(oneHotDeg, sequences2)))  # turn sequences to one hot vectors using function
+    
+    # read labels & normalize
+    mean_fl2= train2['Mean_FL']
+    labels2=np.array(mean_fl2/max(mean_fl2)) # divide expression by max expression
+    labels2=np.concatenate((labels2,labels2))
+    
+    # use sample weights
+    weights2 = np.array(train2['total_reads'])
+    weights2 = np.log(weights2)
+    weights2 = weights2 / max(weights2) 
+    weights2=np.concatenate((weights2,weights2))
+    
+    
+    # read 2135 variants data with 22 barcodes
+    train3 = pd.read_csv("/content/drive/My Drive/UNLIB_model/train_set_variants_20_barcodes.csv")
+    
+    sequences3 = list(train3['VariableRegion']) # read sequences
+    reverse_complement3= list(map(reverse_complement, sequences3))# reverse complement
+    sequences3.extend(reverse_complement3) # add reverse complements to sequences
+    sequences3 = np.array(list(map(oneHotDeg, sequences3))) # turn sequences to one hot vectors
+    
+    # read labels & normalize
+    mean_fl3= train3['Mean_FL']
+    labels3=np.array(mean_fl3/max(mean_fl3))
+    labels3=np.concatenate((labels3,labels3))
+    
+    # use sample weights
+    weights3 = np.array(train3['total_reads'])
+    weights3 = np.log(weights3)
+    weights3 = weights3 / max(weights3)
+    weights3=np.concatenate((weights3,weights3))
+    
+    
+    # read 300 validation variants
+    test1 = pd.read_csv("/content/drive/My Drive/UNLIB_model/300_test_variants.csv")
+    
+    test_sequences1 = list(test1['VariableRegion']) # read sequences
+    comp_test_sequences1=list(map(reverse_complement, test_sequences1)) # reverse complements
+    test_sequences1 = np.array(list(map(oneHotDeg, test_sequences1))) # use one hot function
+    comp_test_sequences1 = np.array(list(map(oneHotDeg, comp_test_sequences1)))
+    
+    # read & normalize labels
+    mean_fl_test1 = test1['Mean_FL']
+    test_labels1 = np.array(mean_fl_test1/max(mean_fl_test1))
+    
+    
+    # read 11 validation variants
+    test2 = pd.read_csv('/content/drive/My Drive/UNLIB_model/11_validation_variants.csv')
+    test_sequences2 = list(test2['barcoded variant']) # read sequences
+    
+    # exclude 15-nt barcode from the variant sequence
+    sliced_sequences = []
+    # Iterate through each sequence and ignore first 15 nucleotides
+    for sequence in test_sequences2:
     sliced_sequence = sequence[15:]  # Slice the sequence from index 15 onwards
     sliced_sequences.append(sliced_sequence)
-test_sequences2 = sliced_sequences
-comp_test_sequences2 = list(map(reverse_complement, test_sequences2))  # use reverse complement function
-test_sequences2 = np.array(list(map(oneHotDeg, test_sequences2)))
-comp_test_sequences2 = np.array(list(map(oneHotDeg, comp_test_sequences2)))
-mean_fl_test2 = test2['yeast average']
-test_labels2 = np.array(mean_fl_test2 / max(mean_fl_test2))
-
-# create a convolution network machine learning model
-cnn_model = Sequential()
-cnn_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(101, 4), use_bias=True))
-cnn_model.add(GlobalMaxPooling1D())
-cnn_model.add(Dense(16, activation='relu'))
-cnn_model.add(Dense(1, activation='linear'))
-cnn_model.compile(optimizer='adam', loss='mse')
-
-# fit model on 6 million variant data
-cnn_model.fit(sequences1, labels1, epochs=1, batch_size=32, verbose=1)
-
-# fit model on 67k variant data
-cnn_model.fit(sequences2, labels2, epochs=3, shuffle=True, batch_size=32, verbose=1, sample_weight=weights2)
-
-# save the pretrained model's weights
-cnn_model.save('pretrained_cnn_model.h5')
-
-all_predictions300 = []
-all_predictions11 = []
-
-# random ensemble initialization
-for i in range(100):
-    # Use the function to make predictions
-    predictions300, predictions11 = run_ensemble(sequences3, labels3, weights3, test_sequences1, comp_test_sequences1,
-                                                 test_sequences2, comp_test_sequences2)
-    all_predictions300.append(predictions300)
-    all_predictions11.append(predictions11)
-
-# calculate mean over the predictions of the 100 models
-avg_predictions300 = np.mean(all_predictions300, axis=0)
-avg_predictions11 = np.mean(all_predictions11, axis=0)
-
-# calculate pearson correlation on validation set
-corr300, _ = pearsonr(avg_predictions300, test_labels1)
-corr11, _ = pearsonr(avg_predictions11, test_labels2)
-
-print("Pearson correlation on 11 variants: ", corr11)
-print("Pearson correlation on 300 variants: ", corr300)
-
-# add columns for the 100 models average predictions and the true labels to the csv files of the validation sets
-test1["Average_model_prediction"] = avg_predictions300
-test2["Average_model_prediction"] = avg_predictions11
-test1["True_labels"] = test_labels1
-test2["True_labels"] = test_labels2
-
-# Save the DataFrame to a CSV file
-test1.to_csv('test300_with_predictions.csv', index=False)
-test2.to_csv('test11_with_predictions.csv', index=False)
+    
+    test_sequences2 = sliced_sequences
+    comp_test_sequences2=list(map(reverse_complement, test_sequences2)) # use reverse complement function
+    test_sequences2 = np.array(list(map(oneHotDeg, test_sequences2))) # turn to one hot vectors
+    comp_test_sequences2 = np.array(list(map(oneHotDeg, comp_test_sequences2))) # turn to one hot vectors
+    
+    # read & normalize labels
+    mean_fl_test2 = test2['yeast average']
+    test_labels2= np.array(mean_fl_test2/max(mean_fl_test2))
+    
+    
+    # create a convolution network machine learning model
+    cnn_model = Sequential()
+    cnn_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(101, 4), use_bias=True))
+    cnn_model.add(GlobalMaxPooling1D())
+    cnn_model.add(Dense(16, activation='relu'))
+    cnn_model.add(Dense(1, activation='linear'))
+    cnn_model.compile(optimizer='adam', loss='mse')
+    
+    # Shuffle the data
+    shuffled_indices = np.arange(len(sequences1))
+    np.random.shuffle(shuffled_indices)
+    sequences1 = sequences1[shuffled_indices]
+    labels1 = labels1[shuffled_indices]
+    
+    # fit model on 6 million variant data
+    cnn_model.fit(sequences1, labels1, epochs=1, batch_size=32, verbose=1)
+    
+    # Shuffle the data
+    shuffled_indices2 = np.arange(len(sequences2))
+    np.random.shuffle(shuffled_indices2)
+    sequences2=sequences1[shuffled_indices2]
+    labels2=labels1[shuffled_indices2]
+    
+    # fit model on 70k variant data
+    cnn_model.fit(sequences2, labels2, epochs=3, shuffle=True, batch_size=32, verbose=1, sample_weight=weights2)
+    
+    # save the pretrained model's weights
+    cnn_model.save('pretrained_cnn_model.h5')
+    
+    all_predictions300 = []
+    all_predictions11 = []
+    
+    # random ensemble initialization
+    for i in range(100):
+        # Use the function to make predictions
+        predictions300, predictions11 = train_predict(sequences3, labels3, weights3, test_sequences1, comp_test_sequences1,
+                                                     test_sequences2, comp_test_sequences2)
+        all_predictions300.append(predictions300)
+        all_predictions11.append(predictions11)
+    
+    # calculate mean over the predictions of the 100 models
+    avg_predictions300 = np.mean(all_predictions300, axis=0)
+    avg_predictions11 = np.mean(all_predictions11, axis=0)
+    
+    # calculate pearson correlation on validation set
+    corr300 = pearsonr(avg_predictions300, test_labels1)[0]
+    corr11 = pearsonr(avg_predictions11, test_labels2)[0]
+    
+    print("Pearson correlation on 11 variants: ", corr11)
+    print("Pearson correlation on 300 variants: ", corr300)
+    
+    # add columns for the 100 models average predictions and the true labels to the csv files of the validation sets
+    test1["Average_model_prediction"] = avg_predictions300
+    test2["Average_model_prediction"] = avg_predictions11
+    test1["True_labels"] = test_labels1
+    test2["True_labels"] = test_labels2
+    
+    # Save the DataFrame to a CSV file
+    test1.to_csv('test_300_with_predictions.csv', index=False)
+    test2.to_csv('test_11_with_predictions.csv', index=False)
+    
+if __name__ == "__main__":
+  main()
