@@ -229,8 +229,8 @@ def main():
     # Shuffle the data
     shuffled_indices2 = np.arange(len(sequences2))
     np.random.shuffle(shuffled_indices2)
-    sequences2=sequences1[shuffled_indices2]
-    labels2=labels1[shuffled_indices2]
+    sequences2=sequences2[shuffled_indices2]
+    labels2=labels2[shuffled_indices2]
     
     # fit model on 70k variant data
     cnn_model.fit(sequences2, labels2, epochs=3, shuffle=True, batch_size=32, verbose=1, sample_weight=weights2)
