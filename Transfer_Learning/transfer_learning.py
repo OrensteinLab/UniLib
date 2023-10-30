@@ -4,6 +4,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import *
 from scipy.stats import pearsonr
 from tensorflow.keras.models import load_model, save_model
+from model import Model
 
 np.random.seed(42)
 
@@ -208,36 +209,15 @@ def main():
     # read & normalize labels
     mean_fl_test2 = test2['yeast average']
     test_labels2= np.array(mean_fl_test2/max(mean_fl_test2))
-    
-    
-    # create a convolution network model
-    cnn_model = Sequential()
-    cnn_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(101, 4), use_bias=True))
-    cnn_model.add(GlobalMaxPooling1D())
-    cnn_model.add(Dense(16, activation='relu'))
-    cnn_model.add(Dense(1, activation='linear'))
-    cnn_model.compile(optimizer='adam', loss='mse')
-    
-    # Shuffle the data
-    shuffled_indices = np.arange(len(sequences1))
-    np.random.shuffle(shuffled_indices)
-    sequences1 = sequences1[shuffled_indices]
-    labels1 = labels1[shuffled_indices]
-    
-    # fit model on 6 million variant data
-    cnn_model.fit(sequences1, labels1, epochs=1, batch_size=32, verbose=1)
-    
-    # Shuffle the data
-    shuffled_indices2 = np.arange(len(sequences2))
-    np.random.shuffle(shuffled_indices2)
-    sequences2=sequences2[shuffled_indices2]
-    labels2=labels2[shuffled_indices2]
-    
-    # fit model on 70k variant data
-    cnn_model.fit(sequences2, labels2, epochs=3, shuffle=True, batch_size=32, verbose=1, sample_weight=weights2)
-    
-    # save the pretrained model's weights
-    cnn_model.save('pretrained_cnn_model.h5')
+
+    # create a convolutional network model
+    cnn_model= Model()
+    #fit on 6 million sequences
+    cnn_model.fit(sequences=sequences1,labels=labels1,weights=None,epochs=1)
+    # fit on 67k sequences
+    cnn_model.fit(sequences=sequences2, labels=labels2, weights=weights2, epochs=3)
+    # save network's weights
+    cnn_model.save()
     
     all_predictions1 = []
     all_predictions2 = []
