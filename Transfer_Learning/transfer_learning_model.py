@@ -5,6 +5,8 @@ from tensorflow.keras.layers import *
 from scipy.stats import pearsonr
 from tensorflow.keras.models import load_model, save_model
 
+np.random.seed(42)
+
 def oneHotDeg(string):
     """
     Converts a DNA sequence to a one-hot encoding.
@@ -119,8 +121,7 @@ def train_predict(train_sequences, train_labels, train_weights, test_sequences1,
     return predictions1, predictions2
 
 def main():
-    
-    np.random.seed(42)
+
     # read csv of 6 million reads from Carl experiment
     train1 = pd.read_csv("6_million_reada.csv")
     
