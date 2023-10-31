@@ -127,13 +127,13 @@ def main():
     # read csv of 6 million reads from de Boer-Regev experiment
     train1 = pd.read_csv("6_million_read.csv")
 
-    sequences1 = list(train1['Sequence'][:10000])  # read sequences
+    sequences1 = list(train1['Sequence'])  # read sequences
     reverse_complement1 = list(map(reverse_complement, sequences1))  # create reverse complement sequences
     sequences1.extend(reverse_complement1)  # add reverse complements to sequences
     sequences1 = np.array(list(map(oneHotDeg, sequences1)))  # use the one-hot function on the sequences
 
     # read labels & normalize
-    mean_fl1 = train1['Mean_Fl'][:10000]
+    mean_fl1 = train1['Mean_Fl']
     labels1 = np.array(mean_fl1 / max(mean_fl1))  # divide each expression by the max
     labels1 = np.concatenate((labels1, labels1))
 
@@ -228,8 +228,7 @@ def main():
     # run 100 models as part of the random ensemble initialization technique
     for i in range(100):
         # Use the function to train model and make predictions
-        predictions1, predictions2 = train_predict(sequences3, labels3, weights3, test_sequences1,
-                                                    comp_test_sequences1,
+        predictions1, predictions2 = train_predict(sequences3, labels3, weights3, test_sequences1, comp_test_sequences1,
                                                     test_sequences2, comp_test_sequences2)
         all_predictions1.append(predictions1)
         all_predictions2.append(predictions2)
