@@ -6,6 +6,7 @@ from scipy.stats import pearsonr
 from tensorflow.keras.models import load_model, save_model
 from model import Model
 
+tf.random.set_seed(42)
 np.random.seed(42)
 
 def oneHotDeg(string):
