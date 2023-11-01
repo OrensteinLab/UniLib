@@ -4,10 +4,49 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import *
 from scipy.stats import pearsonr
 from tensorflow.keras.models import load_model, save_model
+import tensorflow as tf
 from model import Model
 
 tf.random.set_seed(42)
 np.random.seed(42)
+
+
+class Model:
+
+    def __init__(self):
+        """
+        Initialize the neural network model architecture.
+        """
+        self.cnn_model = Sequential()
+        self.cnn_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(101, 4), use_bias=True))
+        self.cnn_model.add(GlobalMaxPooling1D())
+        self.cnn_model.add(Dense(16, activation='relu'))
+        self.cnn_model.add(Dense(1, activation='linear'))
+        self.cnn_model.compile(optimizer='adam', loss='mse')
+
+    def fit(self, sequences, labels, weights, epochs):
+
+        # Shuffle sequences and labels
+        shuffled_indices = np.arange(len(sequences))
+        np.random.shuffle(shuffled_indices)
+        sequences = sequences[shuffled_indices]
+        labels = labels[shuffled_indices]
+
+        if weights is not None:
+            weights = weights[shuffled_indices]
+            # fit model on data
+            self.cnn_model.fit(sequences, labels, epochs=epochs, batch_size=32, verbose=1, sample_weight=weights)
+        else:
+            # fit model on data
+            self.cnn_model.fit(sequences, labels, epochs=epochs, batch_size=32, verbose=1)
+
+    def predict(self, test):
+
+        return self.cnn_model.predict(test)
+
+    def save(self, file_name):
+
+        self.cnn_model.save(file_name)
 
 def oneHotDeg(string):
     """
@@ -57,7 +96,7 @@ def reverse_complement(dna_sequence):
     return ''.join(reverse_comp_sequence)
 
 
-def reverse_comp_prediction(model, test_sequences, comp_test_sequences):
+def reverse_comp_prediction(model, test_data):
     """
     Make predictions on both the original sequences and their reverse complements and average the results.
 
@@ -69,6 +108,8 @@ def reverse_comp_prediction(model, test_sequences, comp_test_sequences):
     Returns:
     - predictions (list): Average predictions for each sequence.
     """
+    test_sequences, comp_test_sequences=test_data
+
     # use model to predict test sequences labels test data
     predictions_original = model.predict(test_sequences)
     # use model to predict reverse complement sequences labels
@@ -82,8 +123,7 @@ def reverse_comp_prediction(model, test_sequences, comp_test_sequences):
     return predictions
 
 
-def train_predict(train_sequences, train_labels, train_weights, test_sequences1, comp_test_sequences1, test_sequences2,
-                  comp_test_sequences2):
+def train_predict(train_sequences, train_labels, train_weights, test_data1, test_data2):
     """
     Run an ensemble of machine learning models and make predictions on test sequences.
 
@@ -102,7 +142,7 @@ def train_predict(train_sequences, train_labels, train_weights, test_sequences1,
     """
 
     # Load the pretrained model's weights
-    pretrained_model = load_model('pretrained_cnn_model.h5')
+    pretrained_model = load_model('/content/pretrained_cnn_model.h5')
 
     # Shuffle the data
     shuffled_indices = np.arange(len(train_sequences))
@@ -117,8 +157,8 @@ def train_predict(train_sequences, train_labels, train_weights, test_sequences1,
     pretrained_model.fit(sequences_shuffled, labels_shuffled, epochs=3, batch_size=32, verbose=1,
                          sample_weight=weights_shuffled, shuffle=True)
 
-    predictions1 = reverse_comp_prediction(pretrained_model, test_sequences1, comp_test_sequences1)
-    predictions2 = reverse_comp_prediction(pretrained_model, test_sequences2, comp_test_sequences2)
+    predictions1 = reverse_comp_prediction(pretrained_model, test_data1)
+    predictions2 = reverse_comp_prediction(pretrained_model, test_data2)
 
     return predictions1, predictions2
 
@@ -126,7 +166,7 @@ def train_predict(train_sequences, train_labels, train_weights, test_sequences1,
 def main():
 
     # read csv of 6 million reads from de Boer-Regev experiment
-    train1 = pd.read_csv("6_million_read.csv")
+    train1 = pd.read_csv("/content/6_million_read.csv")
 
     sequences1 = list(train1['Sequence'])  # read sequences
     reverse_complement1 = list(map(reverse_complement, sequences1))  # create reverse complement sequences
@@ -140,7 +180,7 @@ def main():
 
 
     # read 67k variants data from csv file
-    train2 = pd.read_csv("all_variants_without_test.csv")
+    train2 = pd.read_csv("/content/all_variants_without_test.csv")
 
     sequences2 = list(train2['VariableRegion'])  # read sequences
     reverse_complement2 = list(map(reverse_complement, sequences2))  # create reverse complement sequences
@@ -160,7 +200,7 @@ def main():
 
 
     # read 2135 variants data with 22 barcodes
-    train3 = pd.read_csv("train_set_variants_22_barcodes.csv")
+    train3 = pd.read_csv("/content/train_set_variants_20_barcodes.csv")
 
     sequences3 = list(train3['VariableRegion'])  # read sequences
     reverse_complement3 = list(map(reverse_complement, sequences3))  # reverse complement
@@ -180,12 +220,13 @@ def main():
 
 
     # read 300 validation variants
-    test1 = pd.read_csv("300_test_variants.csv")
+    test1 = pd.read_csv("/content/300_test_variants.csv")
 
     test_sequences1 = list(test1['VariableRegion'])  # read sequences
     comp_test_sequences1 = list(map(reverse_complement, test_sequences1))  # reverse complements
     test_sequences1 = np.array(list(map(oneHotDeg, test_sequences1)))  # use one hot function
     comp_test_sequences1 = np.array(list(map(oneHotDeg, comp_test_sequences1)))
+    test_data1=test_sequences1,comp_test_sequences1
 
     # read & normalize labels
     mean_fl_test1 = test1['Mean_FL']
@@ -193,7 +234,7 @@ def main():
 
 
     # read 11 validation variants
-    test2 = pd.read_csv('11_validation_variants.csv')
+    test2 = pd.read_csv('/content/11_validation_variants.csv')
     test_sequences2 = list(test2['barcoded variant'])  # read sequences
 
     # exclude 15-nt barcode from the variant sequence
@@ -207,6 +248,7 @@ def main():
     comp_test_sequences2 = list(map(reverse_complement, test_sequences2))  # use reverse complement function
     test_sequences2 = np.array(list(map(oneHotDeg, test_sequences2)))  # turn to one hot vectors
     comp_test_sequences2 = np.array(list(map(oneHotDeg, comp_test_sequences2)))  # turn to one hot vectors
+    test_data2 = test_sequences2,comp_test_sequences2
 
     # read & normalize labels
     mean_fl_test2 = test2['yeast average']
@@ -220,7 +262,7 @@ def main():
     # fit of 67k sequences
     cnn_model.fit(sequences=sequences2, labels=labels2, weights=weights2, epochs=3)
     # save model's weights
-    cnn_model.save()
+    cnn_model.save('pretrained_cnn_model.h5')
 
 
     all_predictions1 = []
@@ -229,8 +271,7 @@ def main():
     # run 100 models as part of the random ensemble initialization technique
     for i in range(100):
         # Use the function to train model and make predictions
-        predictions1, predictions2 = train_predict(sequences3, labels3, weights3, test_sequences1, comp_test_sequences1,
-                                                    test_sequences2, comp_test_sequences2)
+        predictions1, predictions2 = train_predict(sequences3, labels3, weights3,test_data1,test_data2)
         all_predictions1.append(predictions1)
         all_predictions2.append(predictions2)
 
@@ -238,13 +279,16 @@ def main():
     avg_predictions1 = np.mean(all_predictions1, axis=0)
     avg_predictions2 = np.mean(all_predictions2, axis=0)
 
+    print(avg_predictions2.shape)
+    print(test_labels2.shape)
+
     # calculate pearson correlation on validation sets
-    corr_300 = pearsonr(avg_predictions1, test_labels1)[0]
-    corr_11 = pearsonr(avg_predictions2, test_labels2)[0]
+    corr1,p_value1  = pearsonr(avg_predictions1, test_labels1)
+    corr2,p_value2 = pearsonr(avg_predictions2, test_labels2)
 
     # print pearson correlation
-    print("Pearson correlation on 11 variants: ", corr_11)
-    print("Pearson correlation on 300 variants: ", corr_300)
+    print("Correlations on 11: ", corr2, "P value: ",p_value2)
+    print("Correlations on 300: ", corr1, "Pvalue: ",p_value1)
 
     # add columns for the 100 models average predictions and the true labels to the csv files of the validation sets
     test1["Average_model_prediction"] = avg_predictions1
