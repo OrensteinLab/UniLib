@@ -1,6 +1,8 @@
 import numpy as np
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import *
+tf.random.set_seed(42)
+np.random.seed(42)
 
 class Model:
     
