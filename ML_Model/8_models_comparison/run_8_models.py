@@ -5,10 +5,8 @@ from tensorflow.keras.layers import *
 from scipy.stats.stats import pearsonr
 import random
 from itertools import product
-from tensorflow.keras.optimizers import Adagrad
 from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
-from tensorflow.keras.callbacks import LearningRateScheduler
 
 num_of_dp = 10000
 np.random.seed(42)
