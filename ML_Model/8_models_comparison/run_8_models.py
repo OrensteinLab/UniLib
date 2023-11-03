@@ -71,6 +71,7 @@ def create_model(input_shape, use_bins):
 
 
 def run_model(combination, train_data, test_data):
+    
     # function to run specific model with specific combination of attributes
     use_bins, use_barcodes, use_weights = combination
 
@@ -168,24 +169,24 @@ def run_model(combination, train_data, test_data):
 
 def main():
     # read csv file with 140k sequences and expression data
-    pbm = pd.read_csv("T_AllRuns.csv",nrows=int(14 * num_of_dp + num_of_dp * 0.5), skiprows=0)
+    all_data = pd.read_csv("T_AllRuns.csv",nrows=int(14 * num_of_dp + num_of_dp * 0.5), skiprows=0)
 
-    pbm = pbm.sort_values(by='TotalReads', ascending=False)
+    all_data = all_data.sort_values(by='TotalReads', ascending=False)
     # select 4000 random indexes for top 20k in the dataframe
     random_test_indexes = random.sample(range(20000), 4000)
-    # select the 2000 random rows from pbm as test set
-    test_set = pbm.iloc[random_test_indexes]
+    # select the 4000 random rows from pbm as test set
+    test_set = all_data.iloc[random_test_indexes]
     # Remove the selected rows
-    pbm = pbm.drop(random_test_indexes)
+    train_data = all_data.drop(random_test_indexes)
     # sort dataframe again by the total reads
-    pbm = pbm.sort_values(by='TotalReads', ascending=False)
+    train_data = train_data.sort_values(by='TotalReads', ascending=False)
 
     options = [True, False]
     combinations = list(product(options, repeat=3))  # create 8 combinations of 3 attributes
 
     # Iterate through the combinations of attributes and call the function run_model() with them
     for combination in combinations:
-        run_model(combination, pbm, test_set)
+        run_model(combination, train_data, test_set)
 
 
 if __name__ == "__main__":
