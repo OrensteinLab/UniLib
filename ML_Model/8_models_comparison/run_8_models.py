@@ -5,16 +5,29 @@ from tensorflow.keras.layers import *
 from scipy.stats.stats import pearsonr
 import random
 from itertools import product
+from tensorflow.keras.optimizers import Adagrad
 from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
+from tensorflow.keras.callbacks import LearningRateScheduler
 
 num_of_dp = 10000
+
+# Set random seeds for reproducibility
 np.random.seed(42)
 tf.random.set_seed(42)
 random.seed(42)
 
 
 def oneHotDeg(string):
+    """
+    Convert DNA sequences to one-hot encoding with degenerate bases.
+
+    Args:
+        string (str): DNA sequence containing A, C, G, T, K, and M bases.
+
+    Returns:
+        np.ndarray: One-hot encoded matrix of shape (101, 4).
+    """
     mapping = {
         "A": [1, 0, 0, 0],
         "C": [0, 1, 0, 0],
@@ -34,6 +47,15 @@ def oneHotDeg(string):
 
 
 def oneHot(string):
+    """
+    Convert DNA sequences to one-hot encoding.
+
+    Args:
+        string (str): DNA sequence containing A, C, G, T.
+
+    Returns:
+        np.ndarray: One-hot encoded matrix of shape (4,).
+    """
     trantab = str.maketrans('ACGT', '0123')
     string = str(string)
     data = [int(x) for x in list(string.translate(trantab))]
@@ -41,11 +63,27 @@ def oneHot(string):
 
 
 def train_predict_model(model, train_seq, weights_train, mean_fl_train, bins_train, use_bins, test_data):
+    """
+    Train a model and make predictions.
+
+    Args:
+        model (Sequential): Keras model.
+        train_seq (np.ndarray): Training sequences.
+        weights_train (np.ndarray): Training weights.
+        mean_fl_train (np.ndarray): Training mean FL values.
+        bins_train (np.ndarray): Training bin labels.
+        use_bins (bool): Whether to use bins.
+        test_data (np.ndarray): Test data.
+
+    Returns:
+        np.ndarray: Predicted mean FL values.
+    """
+
     if use_bins:
-        model.fit(train_seq, bins_train, epochs=3, batch_size=128, verbose=1, sample_weight=weights_train) #callbacks=[lr_scheduler]
-        pred_test = model.predict(test_data)
+        model.fit(train_seq, bins_train, epochs=3, batch_size=128, verbose=1, sample_weight=weights_train) # fit model on train data
+        pred_test = model.predict(test_data) # use model to make predictions on test data
         weights_bins = [607, 1364, 2596, 7541]
-        pred_meanFL = np.array([np.dot(x, weights_bins) for x in pred_test])
+        pred_meanFL = np.array([np.dot(x, weights_bins) for x in pred_test]) # multiply bin distribution be mean FL vector
     else:
         model.fit(train_seq, mean_fl_train, epochs=3, batch_size=128, verbose=1, sample_weight=weights_train)
         pred_meanFL = model.predict(test_data)
@@ -53,6 +91,16 @@ def train_predict_model(model, train_seq, weights_train, mean_fl_train, bins_tra
     return pred_meanFL
 
 def create_model(input_shape, use_bins):
+    """
+    Create a Keras model based on the input shape and task.
+
+    Args:
+        input_shape (tuple): Input shape for the model.
+        use_bins (bool): Whether to use bins.
+
+    Returns:
+        Sequential: Keras model.
+    """
 
     optimizer = Adam(learning_rate=0.0003)
     model = Sequential()
@@ -71,9 +119,16 @@ def create_model(input_shape, use_bins):
 
 
 def run_model(combination, train_data, test_data):
-    
-    # function to run specific model with specific combination of attributes
-    use_bins, use_barcodes, use_weights = combination
+    """
+    Run the model with specific attribute combinations.
+
+    Args:
+        combination (tuple): Attribute combination (use_bins, use_barcodes, use_weights).
+        train_data (pd.DataFrame): Training data.
+        test_data (np.ndarray): Test data.
+    """
+
+    use_bins, use_barcodes, use_weights = combination # define combination
 
     # display attribute combination
     print("bins {}, weights {}, barcode {} \n".format(use_bins, use_weights, use_barcodes))
@@ -121,12 +176,16 @@ def run_model(combination, train_data, test_data):
 
     for i in range(14):
 
-        cnn_model = create_model(input_shape, use_bins)  # use function to create CNN model
-
+        # in each iteration we add 10,0000 more training example and then train and test the model
         print("iteration ", i)
+
+        # use function to create CNN model
+        cnn_model = create_model(input_shape, use_bins)  
+
         amount_of_data_points += [num_of_dp * (i + 1)]
-        min_readtot += [readtot_all[amount_of_data_points[i]]] # find the minimum read number for the specific amount of data points
-        # concatenate arrays to include 10,000 additional data points
+        min_readtot += [readtot_all[amount_of_data_points[i]]] # find the minimum amount of reads threshold
+
+        # concatenate arrays to add 10,000 additional data points
         train_seq = np.concatenate((first_data_train, all_data[num_of_dp:int((i + 1) * num_of_dp)]), axis=0)
         bins_train = np.concatenate((first_bins_train, bins_all[num_of_dp:int((i + 1) * num_of_dp)]), axis=0)
         meanFL_train = np.concatenate((first_mean_fl_train, mean_fl_all[num_of_dp:int((i + 1) * num_of_dp)]), axis=0)
@@ -160,7 +219,7 @@ def run_model(combination, train_data, test_data):
     print("min_readtot =", min_readtot)
 
     # write all results to output file
-    with open("model_compare_results.txt", 'a') as output:
+    with open("model_compare_results_final.txt", 'a') as output:
         output.write("bins {}, weights {}, barcode {} \n".format(use_bins, use_weights, use_barcodes))
         output.write("reads total: {} \n".format(min_readtot))
         output.write("amount_of_data_point: {}\n".format(amount_of_data_points))
@@ -169,12 +228,12 @@ def run_model(combination, train_data, test_data):
 
 def main():
     # read csv file with 140k sequences and expression data
-    all_data = pd.read_csv("T_AllRuns.csv",nrows=int(14 * num_of_dp + num_of_dp * 0.5), skiprows=0)
+    all_data = pd.read_csv("/content/T_AllRuns.csv")
 
     all_data = all_data.sort_values(by='TotalReads', ascending=False)
-    # select 4000 random indexes for top 20k in the dataframe
-    random_test_indexes = random.sample(range(20000), 4000)
-    # select the 4000 random rows from pbm as test set
+    # select 2k random indexes from the top 10k in the dataframe
+    random_test_indexes = random.sample(range(10000), 2000)
+    # select the 2000 random rows as test ser
     test_set = all_data.iloc[random_test_indexes]
     # Remove the selected rows
     train_data = all_data.drop(random_test_indexes)
