@@ -17,7 +17,7 @@ pc_meanfl_101_weights= [0.38984244536445045, 0.3919640893177209, 0.4053916445023
 pc_meanfl_101= [0.3860313675265291, 0.4105006230788281, 0.37840519187072513, 0.4025885292681197, 0.3939019183517708, 0.3881958828401708, 0.37769268991265925, 0.35249844752121895, 0.332066389737541, 0.313132643535983, 0.25782520570897594, 0.19653202279455198, 0.15427794873249467, 0.16956058181998926]
 
 fig= plt.figure(figsize=(16, 12))
-fig.subplots_adjust(top=0.95, left=0.1, right=0.9, bottom=0.18)
+fig.subplots_adjust(top=0.95, left=0.17, right=0.9, bottom=0.19)
 
 # Plot the lines with different colors
 plt.plot(amount_of_data_points, pc_meanfl_116_weights, 'g.-', label="Mean FL,116bp sequence, with sample weights model fit")
@@ -29,16 +29,16 @@ plt.plot(amount_of_data_points, pc_bins_116, 'm.-', label="4 bins,116bp sequence
 plt.plot(amount_of_data_points, pc_bins_101_weights, 'k.-', label="4 bins,101bp sequence, with sample weights model fit")
 plt.plot(amount_of_data_points, pc_bins_101, 'orange', label="4 bins,101bp sequence")
 
-plt.xticks(amount_of_data_points, x_labels, fontsize=16, rotation=40, ha='right')
-plt.yticks(np.arange(0, 0.5, step=0.05), fontsize=16)
-plt.xlabel("# Variant in the training set \n (Total read cutoff)", fontsize=25)
-plt.ylabel("Pearson correlation", fontsize=25)
+plt.xticks(amount_of_data_points, x_labels, fontsize=18, rotation=42, ha='right')
+plt.yticks(np.arange(0.1, 0.5, step=0.05), fontsize=20)
+plt.xlabel("#Variants in the training set \n  (Total read cut-off)", fontsize=24)
+plt.ylabel("Pearson correlation", fontsize=24)
 
 # Set legend with custom placement and font size
-legend = plt.legend(loc='lower left', fontsize=18)
-legend.set_title("Legend", prop={"size": 18})
+legend = plt.legend(loc='lower left', fontsize=19)
+legend.set_title("Legend", prop={"size": 19})
 
-plt.savefig('models_comp_graph.png', dpi=300)
+plt.savefig('figure_3b.png', dpi=300)
 plt.show()
 
 
