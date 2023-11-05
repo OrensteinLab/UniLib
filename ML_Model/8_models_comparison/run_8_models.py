@@ -14,9 +14,9 @@ from sklearn.utils.class_weight import compute_class_weight
 num_of_dp = 10000
 
 # Set random seeds for reproducibility
-np.random.seed(42)
-tf.random.set_seed(24)
-random.seed(42)
+np.random.seed(20)
+tf.random.set_seed(20)
+random.seed(20)
 
 
 def oneHotDeg(string):
@@ -81,12 +81,12 @@ def train_predict_model(model, train_seq, weights_train, mean_fl_train, bins_tra
     """
 
     if use_bins:
-        model.fit(train_seq, bins_train, epochs=3, batch_size=128, verbose=1, shuffle=True, sample_weight=weights_train) # fit model on train data
+        model.fit(train_seq, bins_train, epochs=5, batch_size=32, verbose=1, shuffle=True, sample_weight=weights_train) # fit model on train data
         pred_test = model.predict(test_data) # use model to make predictions on test data
         weights_bins = [607, 1364, 2596, 7541]
         pred_meanFL = np.array([np.dot(x, weights_bins) for x in pred_test]) # multiply bin distribution be mean FL vector
     else:
-        model.fit(train_seq, mean_fl_train, epochs=3, batch_size=128, verbose=1,shuffle=True, sample_weight=weights_train)
+        model.fit(train_seq, mean_fl_train, epochs=5, batch_size=32, verbose=1,shuffle=True, sample_weight=weights_train)
         pred_meanFL = model.predict(test_data)
 
     return pred_meanFL
@@ -108,11 +108,11 @@ def create_model(input_shape, use_bins):
     model.add(Dense(16, activation='relu'))
 
     if use_bins:
-        model.add(Dense(4, activation='softmax'))
-        model.compile(optimizer=Adam(learning_rate=0.0003), loss='mse')
+        model.add(Dense(4, activation='linear'))
+        model.compile(optimizer='adam', loss='mse')
     else:
         model.add(Dense(1, activation='linear'))
-        model.compile(optimizer=Adam(learning_rate=0.0003), loss='mse')
+        model.compile(optimizer='adam', loss='mse')
 
     return model
 
@@ -179,7 +179,7 @@ def run_model(combination, train_data, test_data):
         print("iteration ", i)
 
         # use function to create CNN model
-        cnn_model = create_model(input_shape, use_bins)  
+        cnn_model = create_model(input_shape, use_bins)
 
         amount_of_data_points += [num_of_dp * (i + 1)]
         min_readtot += [readtot_all[amount_of_data_points[i]]] # find the minimum amount of reads threshold
@@ -231,8 +231,8 @@ def main():
 
     all_data = all_data.sort_values(by='TotalReads', ascending=False)
     # select 2k random indexes from the top 10k in the dataframe
-    random_test_indexes = random.sample(range(20000), 4000)
-    # select the 2000 random rows as test ser
+    random_test_indexes = random.sample(range(10000), 2000)
+    # select the 2000 random rows as test set
     test_set = all_data.iloc[random_test_indexes]
     # Remove the selected rows
     train_data = all_data.drop(random_test_indexes)
