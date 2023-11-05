@@ -7,7 +7,6 @@ import random
 from itertools import product
 from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
-from sklearn.utils.class_weight import compute_class_weight
 
 
 
