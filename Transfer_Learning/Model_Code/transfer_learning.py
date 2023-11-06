@@ -279,9 +279,6 @@ def main():
     avg_predictions1 = np.mean(all_predictions1, axis=0)
     avg_predictions2 = np.mean(all_predictions2, axis=0)
 
-    print(avg_predictions2.shape)
-    print(test_labels2.shape)
-
     # calculate pearson correlation on validation sets
     corr1,p_value1  = pearsonr(avg_predictions1, test_labels1)
     corr2,p_value2 = pearsonr(avg_predictions2, test_labels2)
