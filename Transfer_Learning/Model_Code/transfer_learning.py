@@ -261,7 +261,7 @@ def main():
     cnn_model.fit(sequences=sequences1,labels=labels1,weights=None,epochs=1)
     # fit of 67k sequences
     cnn_model.fit(sequences=sequences2, labels=labels2, weights=weights2, epochs=3)
-    # save model's weights
+    # save pretrained model's weights
     cnn_model.save('pretrained_cnn_model.h5')
 
 
@@ -270,7 +270,7 @@ def main():
 
     # run 100 models as part of the random ensemble initialization technique
     for i in range(100):
-        # Use the function to train model and make predictions
+        # Use function to train the pretrained model on 2,135 variants with 22 barcodes (with random intialization) and to make predictions
         predictions1, predictions2 = train_predict(sequences3, labels3, weights3,test_data1,test_data2)
         all_predictions1.append(predictions1)
         all_predictions2.append(predictions2)
@@ -294,8 +294,8 @@ def main():
     test2["True_labels"] = test_labels2
 
     # Save the DataFrame to a CSV file
-    test1.to_csv('test_300_with_predictions.csv', index=False)
-    test2.to_csv('test_11_with_predictions.csv', index=False)
+    test1.to_csv("300_validation_with_predictions.csv', index=False)
+    test2.to_csv('11_validation_with_predictions.csv', index=False)
 
 if __name__ == "__main__":
     main()
