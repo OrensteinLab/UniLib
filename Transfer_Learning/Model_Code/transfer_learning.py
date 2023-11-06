@@ -10,7 +10,6 @@ from model import Model
 tf.random.set_seed(42)
 np.random.seed(42)
 
-
 class Model:
 
     def __init__(self):
@@ -228,10 +227,9 @@ def main():
     comp_test_sequences1 = np.array(list(map(oneHotDeg, comp_test_sequences1)))
     test_data1=test_sequences1,comp_test_sequences1
 
-    # read & normalize labels
-    mean_fl_test1 = test1['Mean_FL']
-    test_labels1 = np.array(mean_fl_test1 / max(mean_fl_test1))
-
+    # read labels
+    test_labels1 = np.array(test1['Mean_FL'])
+    
 
     # read 11 validation variants
     test2 = pd.read_csv('/content/11_validation_variants.csv')
@@ -250,9 +248,8 @@ def main():
     comp_test_sequences2 = np.array(list(map(oneHotDeg, comp_test_sequences2)))  # turn to one hot vectors
     test_data2 = test_sequences2,comp_test_sequences2
 
-    # read & normalize labels
-    mean_fl_test2 = test2['yeast average']
-    test_labels2 = np.array(mean_fl_test2 / max(mean_fl_test2))
+    # read labels
+    test_labels2 = np.array(test2['yeast average'])
 
 
     # create a convolutional network model
