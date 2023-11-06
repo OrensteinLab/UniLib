@@ -244,8 +244,8 @@ def main():
     corr2,p_value2 = pearsonr(avg_predictions2, test_labels2)
 
     # print pearson correlation
-    print("Correlations on 11: ", corr2, "P value: ",p_value2)
-    print("Correlations on 300: ", corr1, "Pvalue: ",p_value1)
+    print("Correlations on 11 validation variants: ", corr2, "P value: ",p_value2)
+    print("Correlations on 300 validation variants: ", corr1, "Pvalue: ",p_value1)
 
     # add columns for the 100 models average predictions and the true labels to the csv files of the validation sets
     test1["Average_model_prediction"] = avg_predictions1
