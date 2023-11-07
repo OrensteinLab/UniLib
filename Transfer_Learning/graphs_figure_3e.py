@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 
 # Data for the first graph
-pearson_scores1 = [0.56139, 0.602278]
+pearson_scores1 = [0.5688, 0.5754]
 x_labels1 = ['11 validation sURS', '300 validation variants']
 
 # Data for the second graph
-pearson_scores2 = [0.68, -0.02]
+pearson_scores2 = [0.63, -0.02]
 x_labels2 = ['dBR Model', 'ADM Model']
 
 # Create a figure with two subplots
