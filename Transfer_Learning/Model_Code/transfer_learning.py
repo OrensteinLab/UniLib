@@ -5,10 +5,47 @@ from tensorflow.keras.layers import *
 from scipy.stats import pearsonr
 from tensorflow.keras.models import load_model, save_model
 import tensorflow as tf
-from model import Model
 
 tf.random.set_seed(42)
 np.random.seed(42)
+
+
+class Model:
+
+    def __init__(self):
+        """
+        Initialize the neural network model architecture.
+        """
+        self.cnn_model = Sequential()
+        self.cnn_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(101, 4), use_bias=True))
+        self.cnn_model.add(GlobalMaxPooling1D())
+        self.cnn_model.add(Dense(16, activation='relu'))
+        self.cnn_model.add(Dense(1, activation='linear'))
+        self.cnn_model.compile(optimizer='adam', loss='mse')
+
+    def fit(self, sequences, labels, weights, epochs):
+
+        # Shuffle sequences and labels
+        shuffled_indices = np.arange(len(sequences))
+        np.random.shuffle(shuffled_indices)
+        sequences = sequences[shuffled_indices]
+        labels = labels[shuffled_indices]
+
+        if weights is not None:
+            weights = weights[shuffled_indices]
+            # fit model on data
+            self.cnn_model.fit(sequences, labels,shuffle=True, epochs=epochs, batch_size=32, verbose=1, sample_weight=weights)
+        else:
+            # fit model on data
+            self.cnn_model.fit(sequences, labels, shuffle=True,epochs=epochs, batch_size=32, verbose=1)
+
+    def predict(self, test):
+
+        return self.cnn_model.predict(test)
+
+    def save(self, file_name):
+
+        self.cnn_model.save(file_name)
 
 def oneHotDeg(string):
     """
@@ -190,9 +227,10 @@ def main():
     comp_test_sequences1 = np.array(list(map(oneHotDeg, comp_test_sequences1)))
     test_data1=test_sequences1,comp_test_sequences1
 
-    # read labels
-    test_labels1 = np.array(test1['Mean_FL'])
-    
+    # read & normalize labels
+    mean_fl_test1 = test1['Mean_FL']
+    test_labels1 = np.array(mean_fl_test1 / max(mean_fl_test1))
+
 
     # read 11 validation variants
     test2 = pd.read_csv('/content/11_validation_variants.csv')
@@ -211,8 +249,9 @@ def main():
     comp_test_sequences2 = np.array(list(map(oneHotDeg, comp_test_sequences2)))  # turn to one hot vectors
     test_data2 = test_sequences2,comp_test_sequences2
 
-    # read labels
-    test_labels2 = np.array(test2['yeast average'])
+    # read & normalize labels
+    mean_fl_test2 = test2['yeast average']
+    test_labels2 = np.array(mean_fl_test2 / max(mean_fl_test2))
 
 
     # create a convolutional network model
@@ -221,7 +260,7 @@ def main():
     cnn_model.fit(sequences=sequences1,labels=labels1,weights=None,epochs=1)
     # fit of 67k sequences
     cnn_model.fit(sequences=sequences2, labels=labels2, weights=weights2, epochs=3)
-    # save pretrained model's weights
+    # save model's weights
     cnn_model.save('pretrained_cnn_model.h5')
 
 
@@ -230,7 +269,7 @@ def main():
 
     # run 100 models as part of the random ensemble initialization technique
     for i in range(100):
-        # Use function to train the pretrained model on 2,135 variants with 22 barcodes (with random intialization) and to make predictions
+        # Use the function to train pretrained model on 2135 sequences with 22 barcodes and make predictions
         predictions1, predictions2 = train_predict(sequences3, labels3, weights3,test_data1,test_data2)
         all_predictions1.append(predictions1)
         all_predictions2.append(predictions2)
@@ -244,8 +283,8 @@ def main():
     corr2,p_value2 = pearsonr(avg_predictions2, test_labels2)
 
     # print pearson correlation
-    print("Correlations on 11 validation variants: ", corr2, "P value: ",p_value2)
-    print("Correlations on 300 validation variants: ", corr1, "Pvalue: ",p_value1)
+    print("Correlations on 11: ", corr2, "P value: ",p_value2)
+    print("Correlations on 300: ", corr1, "Pvalue: ",p_value1)
 
     # add columns for the 100 models average predictions and the true labels to the csv files of the validation sets
     test1["Average_model_prediction"] = avg_predictions1
@@ -254,8 +293,8 @@ def main():
     test2["True_labels"] = test_labels2
 
     # Save the DataFrame to a CSV file
-    test1.to_csv("300_validation_with_predictions.csv', index=False)
-    test2.to_csv('11_validation_with_predictions.csv', index=False)
+    test1.to_csv('test_300_with_predictions.csv', index=False)
+    test2.to_csv('test_11_with_predictions.csv', index=False)
 
 if __name__ == "__main__":
     main()
