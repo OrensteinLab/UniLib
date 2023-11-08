@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 # Data for the first graph
-pearson_scores1 = [0.5688, 0.5754]
+pearson_scores1 = [0.5475, 0.5696]
 x_labels1 = ['11 validation sURS', '300 validation variants']
 
 # Data for the second graph
