@@ -5,17 +5,15 @@ from tensorflow.keras.layers import *
 from scipy.stats.stats import pearsonr
 import random
 from itertools import product
-from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
-
-
+from keras.losses import Loss
 
 num_of_dp = 10000
 
 # Set random seeds for reproducibility
-np.random.seed(20)
-tf.random.set_seed(20)
-random.seed(20)
+np.random.seed(42)
+tf.random.set_seed(42)
+random.seed(42)
 
 
 def oneHotDeg(string):
@@ -28,6 +26,7 @@ def oneHotDeg(string):
     Returns:
         np.ndarray: One-hot encoded matrix of shape (101, 4).
     """
+    string=str(string)
     mapping = {
         "A": [1, 0, 0, 0],
         "C": [0, 1, 0, 0],
@@ -60,6 +59,21 @@ def oneHot(string):
     string = str(string)
     data = [int(x) for x in list(string.translate(trantab))]
     return np.eye(4)[data]
+
+
+
+class CustomCrossEntropyDistributionLoss(Loss):
+    def __init__(self, name='custom_cross_entropy_distribution_loss', weights=None, **kwargs):
+        super(CustomCrossEntropyDistributionLoss, self).__init__(name=name, **kwargs)
+        self.weights = weights
+
+    def call(self, y_true, y_pred):
+        # Assuming y_true and y_pred are distributions across bins
+
+        # Calculate the weighted cross-entropy loss
+        ce_loss = -tf.reduce_sum(y_true * tf.math.log(y_pred + 1e-10) * self.weights, axis=-1)
+
+        return tf.reduce_mean(ce_loss)
 
 
 def train_predict_model(model, train_seq, weights_train, mean_fl_train, bins_train, use_bins, test_data):
@@ -107,8 +121,9 @@ def create_model(input_shape, use_bins):
     model.add(Dense(16, activation='relu'))
 
     if use_bins:
-        model.add(Dense(4, activation='linear'))
-        model.compile(optimizer='adam', loss='mse')
+        model.add(Dense(4, activation='softmax'))
+        weights = tf.constant([0.1348145094870474, 0.17428352612219505, 0.24234048172125014, 0.4485614826693652], dtype=tf.float32)
+        model.compile(optimizer='adam', loss=CustomCrossEntropyDistributionLoss(weights=weights))
     else:
         model.add(Dense(1, activation='linear'))
         model.compile(optimizer='adam', loss='mse')
@@ -132,21 +147,21 @@ def run_model(combination, train_data, test_data):
     print("bins {}, weights {}, barcode {} \n".format(use_bins, use_weights, use_barcodes))
 
     # read data from csv files
-    all_sequences = np.array(list(map(oneHotDeg, train_data['VariableRegion'])))  # turn to one hot sequences
-    all_barcodes = np.array(list(map(oneHot, train_data['UniversalAllowedBCs'])))  # read barcodes
-    bins_all = np.transpose(np.array([train_data['nBin1Reads'], train_data['nBin2Reads'], train_data['nBin3Reads'],
-                                      train_data['nBin4Reads']]))  # bin labels
-    mean_fl_all = np.array(train_data['MeanFL'])  # read expression labels
+    all_sequences = np.array(list(map(oneHotDeg, train_data['101bp sequence'])))  # turn to one hot sequences
+    all_barcodes = np.array(list(map(oneHot, train_data['barcode'])))  # read barcodes
+    bins_all = np.transpose(np.array([train_data['nreadBin1'], train_data['nreadBin2'], train_data['nreadBin3'],
+                                      train_data['nreadBin4']]))  # bin labels
+    mean_fl_all = np.array(train_data['Mean Fl'])  # read expression labels
     mean_fl_all = mean_fl_all / max(mean_fl_all)  # normalize labels
-    readtot_all = np.array(train_data['TotalReads'])  # read total reads for every variant
+    readtot_all = np.array(train_data['readtot'])  # read total reads for every variant
 
     # read test data
-    test_sequences = np.array(list(map(oneHotDeg, test_data['VariableRegion'])))
-    test_barcodes = np.array(list(map(oneHot, test_data['UniversalAllowedBCs'])))
-    mean_fl_test = np.array(test_data['MeanFL'])  # test labels
+    test_sequences = np.array(list(map(oneHotDeg, test_data['101bp sequence'])))
+    test_barcodes = np.array(list(map(oneHot, test_data['barcode'])))
+    mean_fl_test = np.array(test_data['Mean Fl'])  # test labels
 
     # define weights
-    weights = np.array(train_data['TotalReads'])
+    weights = np.array(train_data['readtot'])
     weights = np.log(weights)
     weights = weights / max(weights)
 
@@ -226,9 +241,9 @@ def run_model(combination, train_data, test_data):
 
 def main():
     # read csv file with 140k sequences and expression data
-    all_data = pd.read_csv("/content/T_AllRuns.csv")
+    all_data = pd.read_csv("/content/unilib_variant_bindingsites_KM_mean_0_sorted.csv")
 
-    all_data = all_data.sort_values(by='TotalReads', ascending=False)
+    # all_data = all_data.sort_values(by='TotalReads', ascending=False)
     # select 2k random indexes from the top 10k in the dataframe
     random_test_indexes = random.sample(range(10000), 2000)
     # select the 2000 random rows as test set
@@ -236,7 +251,7 @@ def main():
     # Remove the selected rows
     train_data = all_data.drop(random_test_indexes)
     # sort dataframe again by the total reads
-    train_data = train_data.sort_values(by='TotalReads', ascending=False)
+    train_data = train_data.sort_values(by='readtot', ascending=False)
 
     options = [True, False]
     combinations = list(product(options, repeat=3))  # create 8 combinations of 3 attributes
