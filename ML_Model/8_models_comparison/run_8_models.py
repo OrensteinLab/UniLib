@@ -1,13 +1,10 @@
 import pandas as pd
 import numpy as np
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import *
+import tensorflow as tf
 from scipy.stats.stats import pearsonr
 import random
 from itertools import product
-import tensorflow as tf
 from keras.losses import Loss
-
 num_of_dp = 10000
 
 # Set random seeds for reproducibility
@@ -115,17 +112,19 @@ def create_model(input_shape, use_bins):
     Returns:
         Sequential: Keras model.
     """
-    model = Sequential()
-    model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=input_shape, use_bias=True))
-    model.add(GlobalMaxPooling1D())
-    model.add(Dense(16, activation='relu'))
+    model = tf.keras.Sequential()
+    model.add(
+        tf.keras.layers.Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=input_shape,
+                               use_bias=True))
+    model.add(tf.keras.layers.GlobalMaxPooling1D())
+    model.add(tf.keras.layers.Dense(16, activation='relu'))
 
     if use_bins:
-        model.add(Dense(4, activation='softmax'))
-        weights = tf.constant([0.1348145094870474, 0.17428352612219505, 0.24234048172125014, 0.4485614826693652], dtype=tf.float32)
+        model.add(tf.keras.layers.Dense(4, activation='softmax'))
+        weights = tf.constant([0.136, 0.1748, 0.242, 0.446], dtype=tf.float32)
         model.compile(optimizer='adam', loss=CustomCrossEntropyDistributionLoss(weights=weights))
     else:
-        model.add(Dense(1, activation='linear'))
+        model.add(tf.keras.layers.Dense(1, activation='linear'))
         model.compile(optimizer='adam', loss='mse')
 
     return model
@@ -147,21 +146,21 @@ def run_model(combination, train_data, test_data):
     print("bins {}, weights {}, barcode {} \n".format(use_bins, use_weights, use_barcodes))
 
     # read data from csv files
-    all_sequences = np.array(list(map(oneHotDeg, train_data['101bp sequence'])))  # turn to one hot sequences
-    all_barcodes = np.array(list(map(oneHot, train_data['barcode'])))  # read barcodes
-    bins_all = np.transpose(np.array([train_data['nreadBin1'], train_data['nreadBin2'], train_data['nreadBin3'],
-                                      train_data['nreadBin4']]))  # bin labels
-    mean_fl_all = np.array(train_data['Mean Fl'])  # read expression labels
+    all_sequences = np.array(list(map(oneHotDeg, train_data['VariableRegion'])))  # turn to one hot sequences
+    all_barcodes = np.array(list(map(oneHot, train_data['UniversalAllowedBCs'])))  # read barcodes
+    bins_all = np.transpose(np.array([train_data['nBin1Reads'], train_data['nBin2Reads'], train_data['nBin3Reads'],
+                                      train_data['nBin4Reads']]))  # bin labels
+    mean_fl_all = np.array(train_data['MeanFL'])  # read expression labels
     mean_fl_all = mean_fl_all / max(mean_fl_all)  # normalize labels
-    readtot_all = np.array(train_data['readtot'])  # read total reads for every variant
+    readtot_all = np.array(train_data['TotalReads'])  # read total reads for every variant
 
     # read test data
-    test_sequences = np.array(list(map(oneHotDeg, test_data['101bp sequence'])))
-    test_barcodes = np.array(list(map(oneHot, test_data['barcode'])))
-    mean_fl_test = np.array(test_data['Mean Fl'])  # test labels
+    test_sequences = np.array(list(map(oneHotDeg, test_data['VariableRegion'])))
+    test_barcodes = np.array(list(map(oneHot, test_data['UniversalAllowedBCs'])))
+    mean_fl_test = np.array(test_data['MeanFL'])  # test labels
 
     # define weights
-    weights = np.array(train_data['readtot'])
+    weights = np.array(train_data['TotalReads'])
     weights = np.log(weights)
     weights = weights / max(weights)
 
@@ -241,17 +240,19 @@ def run_model(combination, train_data, test_data):
 
 def main():
     # read csv file with 140k sequences and expression data
-    all_data = pd.read_csv("/content/unilib_variant_bindingsites_KM_mean_0_sorted.csv")
+    all_data = pd.read_csv("T_AllRuns.csv")
 
-    # all_data = all_data.sort_values(by='TotalReads', ascending=False)
-    # select 2k random indexes from the top 10k in the dataframe
-    random_test_indexes = random.sample(range(10000), 2000)
-    # select the 2000 random rows as test set
-    test_set = all_data.iloc[random_test_indexes]
-    # Remove the selected rows
-    train_data = all_data.drop(random_test_indexes)
-    # sort dataframe again by the total reads
-    train_data = train_data.sort_values(by='readtot', ascending=False)
+    # Select 2,000 random rows for the test set
+    test_set = all_data.head(10000).sample(n=2000,random_state=42)
+
+    # Remove the selected rows from the training data
+    train_data = all_data.drop(test_set.index)
+
+    # Sort training data again by 'TotalReads'
+    train_data = train_data.sort_values(by='TotalReads', ascending=False)
+
+    train_data = train_data.reset_index(drop=True)
+
 
     options = [True, False]
     combinations = list(product(options, repeat=3))  # create 8 combinations of 3 attributes
