@@ -1,6 +1,3 @@
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
-
 import pandas as pd
 import numpy as np
 from tensorflow.keras.models import Sequential
