@@ -1,3 +1,6 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 import pandas as pd
 import numpy as np
 from tensorflow.keras.models import Sequential
@@ -5,47 +8,36 @@ from tensorflow.keras.layers import *
 from scipy.stats import pearsonr
 from tensorflow.keras.models import load_model, save_model
 import tensorflow as tf
+import keras
+
 
 tf.random.set_seed(42)
 np.random.seed(42)
+batch_size=32
 
 
-class Model:
+class DataGenerator(keras.utils.Sequence):
 
-    def __init__(self):
-        """
-        Initialize the neural network model architecture.
-        """
-        self.cnn_model = Sequential()
-        self.cnn_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(101, 4), use_bias=True))
-        self.cnn_model.add(GlobalMaxPooling1D())
-        self.cnn_model.add(Dense(16, activation='relu'))
-        self.cnn_model.add(Dense(1, activation='linear'))
-        self.cnn_model.compile(optimizer='adam', loss='mse')
+    def __init__(self, sequences, labels, batch_size):
+        self.sequences = sequences
+        self.labels = labels
+        self.batch_size = batch_size
+        self.num_samples = len(sequences)
+        self.indices = np.arange(self.num_samples)
 
-    def fit(self, sequences, labels, weights, epochs):
+    def __len__(self):
+        return int(np.ceil(self.num_samples / self.batch_size))
 
-        # Shuffle sequences and labels
-        shuffled_indices = np.arange(len(sequences))
-        np.random.shuffle(shuffled_indices)
-        sequences = sequences[shuffled_indices]
-        labels = labels[shuffled_indices]
+    def __getitem__(self, index):
+        start = index * self.batch_size
+        end = (index + 1) * self.batch_size
+        batch_indices = self.indices[start:end]
 
-        if weights is not None:
-            weights = weights[shuffled_indices]
-            # fit model on data
-            self.cnn_model.fit(sequences, labels,shuffle=True, epochs=epochs, batch_size=32, verbose=1, sample_weight=weights)
-        else:
-            # fit model on data
-            self.cnn_model.fit(sequences, labels, shuffle=True,epochs=epochs, batch_size=32, verbose=1)
+        batch_sequences = np.array(list(map(oneHotDeg,self.sequences[batch_indices]))) # use the one-hot function on the sequences to turn them to one hot vectors
+        batch_labels = self.labels[batch_indices]
 
-    def predict(self, test):
+        return batch_sequences, batch_labels
 
-        return self.cnn_model.predict(test)
-
-    def save(self, file_name):
-
-        self.cnn_model.save(file_name)
 
 def oneHotDeg(string):
     """
@@ -141,11 +133,10 @@ def train_predict(train_sequences, train_labels, train_weights, test_data1, test
     """
 
     # Load the pretrained model's weights
-    pretrained_model = load_model('/content/pretrained_cnn_model.h5')
+    pretrained_model = load_model('pretrained_cnn_model.h5')
 
     # Shuffle the data
-    shuffled_indices = np.arange(len(train_sequences))
-    np.random.shuffle(shuffled_indices)
+    shuffled_indices = np.random.permutation(range(len(train_sequences)))
 
     # Use the shuffled indices to access data while keeping their relative order
     sequences_shuffled = train_sequences[shuffled_indices]
@@ -153,7 +144,7 @@ def train_predict(train_sequences, train_labels, train_weights, test_data1, test
     weights_shuffled = train_weights[shuffled_indices]
 
     # Fit the model on shuffled data
-    pretrained_model.fit(sequences_shuffled, labels_shuffled, epochs=3, batch_size=32, verbose=1,
+    pretrained_model.fit(sequences_shuffled, labels_shuffled, epochs=3, batch_size=batch_size, verbose=1,
                          sample_weight=weights_shuffled, shuffle=True)
 
     predictions1 = reverse_comp_prediction(pretrained_model, test_data1)
@@ -165,12 +156,12 @@ def train_predict(train_sequences, train_labels, train_weights, test_data1, test
 def main():
 
     # read csv of 6 million reads from de Boer-Regev experiment
-    train1 = pd.read_csv("/content/6_million_read.csv")
+    train1 = pd.read_csv("6_million_read.csv")
 
     sequences1 = list(train1['Sequence'])  # read sequences
     reverse_complement1 = list(map(reverse_complement, sequences1))  # create reverse complement sequences
     sequences1.extend(reverse_complement1)  # add reverse complements to sequences
-    sequences1 = np.array(list(map(oneHotDeg, sequences1)))  # use the one-hot function on the sequences
+    sequences1=np.array(sequences1)
 
     # read labels & normalize
     mean_fl1 = train1['Mean_Fl']
@@ -179,8 +170,7 @@ def main():
 
 
     # read 67k variants data from csv file
-    train2 = pd.read_csv("/content/all_variants_without_test.csv")
-
+    train2 = pd.read_csv("all_variants_without_test.csv")
     sequences2 = list(train2['VariableRegion'])  # read sequences
     reverse_complement2 = list(map(reverse_complement, sequences2))  # create reverse complement sequences
     sequences2.extend(reverse_complement2)  # add reverse complement sequences to sequences
@@ -199,8 +189,7 @@ def main():
 
 
     # read 2135 variants data with 22 barcodes
-    train3 = pd.read_csv("/content/train_set_variants_20_barcodes.csv")
-
+    train3 = pd.read_csv("train_set_variants_22_barcodes.csv")
     sequences3 = list(train3['VariableRegion'])  # read sequences
     reverse_complement3 = list(map(reverse_complement, sequences3))  # reverse complement
     sequences3.extend(reverse_complement3)  # add reverse complements to sequences
@@ -219,47 +208,53 @@ def main():
 
 
     # read 300 validation variants
-    test1 = pd.read_csv("/content/300_test_variants.csv")
-
+    test1 = pd.read_csv("300_test_variants.csv")
     test_sequences1 = list(test1['VariableRegion'])  # read sequences
     comp_test_sequences1 = list(map(reverse_complement, test_sequences1))  # reverse complements
     test_sequences1 = np.array(list(map(oneHotDeg, test_sequences1)))  # use one hot function
     comp_test_sequences1 = np.array(list(map(oneHotDeg, comp_test_sequences1)))
     test_data1=test_sequences1,comp_test_sequences1
-
-    # read & normalize labels
-    mean_fl_test1 = test1['Mean_FL']
-    test_labels1 = np.array(mean_fl_test1 / max(mean_fl_test1))
+    # read labels
+    test_labels1 =test1['Mean_FL']
 
 
     # read 11 validation variants
-    test2 = pd.read_csv('/content/11_validation_variants.csv')
+    test2 = pd.read_csv('11_validation_variants.csv')
     test_sequences2 = list(test2['barcoded variant'])  # read sequences
-
     # exclude 15-nt barcode from the variant sequence
-    sliced_sequences = []
-    # Iterate through each sequence and ignore first 15 nucleotides
-    for sequence in test_sequences2:
-        sliced_sequence = sequence[15:]  # Slice the sequence from index 15 onwards
-        sliced_sequences.append(sliced_sequence)
-
-    test_sequences2 = sliced_sequences
+    test_sequences2 = [sequence[15:] for sequence in test_sequences2]
     comp_test_sequences2 = list(map(reverse_complement, test_sequences2))  # use reverse complement function
     test_sequences2 = np.array(list(map(oneHotDeg, test_sequences2)))  # turn to one hot vectors
     comp_test_sequences2 = np.array(list(map(oneHotDeg, comp_test_sequences2)))  # turn to one hot vectors
     test_data2 = test_sequences2,comp_test_sequences2
-
-    # read & normalize labels
-    mean_fl_test2 = test2['yeast average']
-    test_labels2 = np.array(mean_fl_test2 / max(mean_fl_test2))
+    # read labels
+    test_labels2 = test2['yeast average']
 
 
-    # create a convolutional network model
-    cnn_model= Model()
-    #fit on 6 million sequences
-    cnn_model.fit(sequences=sequences1,labels=labels1,weights=None,epochs=1)
+    # create a new convolutional network model
+    cnn_model = Sequential()
+    cnn_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(101, 4), use_bias=True))
+    cnn_model.add(GlobalMaxPooling1D())
+    cnn_model.add(Dense(16, activation='relu'))
+    cnn_model.add(Dense(1, activation='linear'))
+    cnn_model.compile(optimizer='adam', loss='mse')
+
+
+    #initialize data generator
+    data_generator=DataGenerator(sequences=sequences1,labels=labels1,batch_size=batch_size)
+    #fit model on 6 million dBR sequences using data generator
+    cnn_model.fit(data_generator, steps_per_epoch=int(np.ceil(len(sequences1)/ batch_size)),epochs=1, verbose=1)
+
+
+    #shuffle the training sequences
+    shuffled_idx=np.random.permutation(range(len(sequences2)))
+    sequences2 = sequences2[shuffled_idx]
+    labels2 = labels2[shuffled_idx]
+    weights2 = weights2[shuffled_idx]
+
     # fit of 67k sequences
-    cnn_model.fit(sequences=sequences2, labels=labels2, weights=weights2, epochs=3)
+    cnn_model.fit(sequences2, labels2,shuffle=True, epochs=3, batch_size=batch_size, verbose=1, sample_weight=weights2)
+
     # save model's weights
     cnn_model.save('pretrained_cnn_model.h5')
 
@@ -284,17 +279,20 @@ def main():
 
     # print pearson correlation
     print("Correlations on 11: ", corr2, "P value: ",p_value2)
-    print("Correlations on 300: ", corr1, "Pvalue: ",p_value1)
+    print("Correlations on 300: ", corr1, "P value: ",p_value1)
+
+    test1_predictions=pd.DataFrame()
+    test2_predictions=pd.DataFrame()
 
     # add columns for the 100 models average predictions and the true labels to the csv files of the validation sets
-    test1["Average_model_prediction"] = avg_predictions1
-    test2["Average_model_prediction"] = avg_predictions2
-    test1["True_labels"] = test_labels1
-    test2["True_labels"] = test_labels2
+    test1_predictions["Average_model_prediction"] = avg_predictions1
+    test2_predictions["Average_model_prediction"] = avg_predictions2
+    test1_predictions["True_labels"] = test_labels1
+    test2_predictions["True_labels"] = test_labels2
 
     # Save the DataFrame to a CSV file
-    test1.to_csv('test_300_with_predictions.csv', index=False)
-    test2.to_csv('test_11_with_predictions.csv', index=False)
+    test1_predictions.to_csv('test_300_predictions.csv', index=False)
+    test2_predictions.to_csv('test_11_predictions.csv', index=False)
 
 if __name__ == "__main__":
     main()
