@@ -1,16 +1,29 @@
+import os
 import pandas as pd
-import numpy as np
-import tensorflow as tf
 from scipy.stats.stats import pearsonr
-import random
 from itertools import product
 from keras.losses import Loss
 num_of_dp = 10000
 
 # Set random seeds for reproducibility
-np.random.seed(42)
-tf.random.set_seed(42)
-random.seed(42)
+seed_value=42
+
+os.environ['PYTHONHASHSEED']=str(seed_value)
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
+# 2. Set the `python` built-in pseudo-random generator at a fixed value
+import random
+random.seed(seed_value)
+
+# 3. Set the `numpy` pseudo-random generator at a fixed value
+import numpy as np
+np.random.seed(seed_value)
+
+# 4. Set the `tensorflow` pseudo-random generator at a fixed value
+import tensorflow as tf
+tf.random.set_seed(seed_value)
+
 
 
 def oneHotDeg(string):
