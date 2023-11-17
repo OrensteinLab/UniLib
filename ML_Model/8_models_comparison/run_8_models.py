@@ -10,7 +10,6 @@ seed_value=42
 
 os.environ['PYTHONHASHSEED']=str(seed_value)
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 # 2. Set the `python` built-in pseudo-random generator at a fixed value
 import random
