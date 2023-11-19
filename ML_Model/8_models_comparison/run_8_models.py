@@ -10,6 +10,7 @@ seed_value=42
 
 os.environ['PYTHONHASHSEED']=str(seed_value)
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 # 2. Set the `python` built-in pseudo-random generator at a fixed value
 import random
@@ -42,14 +43,15 @@ def oneHotDeg(string):
         "G": [0, 0, 1, 0],
         "T": [0, 0, 0, 1],
         "K": [0, 0, 0.5, 0.5],
-        "M": [0.5, 0.5, 0, 0]
+        "M": [0.5, 0.5, 0, 0],
+        "N":  [0.25, 0.25, 0.25, 0.25]
     }
 
     # Initialize an empty matrix with the desired shape (4x101)
     one_hot_matrix = np.zeros((101, 4), dtype=np.float32)
 
     for i, base in enumerate(string):
-        one_hot_matrix[i, :] = mapping.get(base, [0.25, 0.25, 0.25, 0.25])
+        one_hot_matrix[i, :] = mapping.get(base)
 
     return one_hot_matrix
 
@@ -133,7 +135,7 @@ def create_model(input_shape, use_bins):
 
     if use_bins:
         model.add(tf.keras.layers.Dense(4, activation='softmax'))
-        weights = tf.constant([0.136, 0.1748, 0.242, 0.446], dtype=tf.float32)
+        weights = tf.constant([0.13, 0.17, 0.24, 0.45], dtype=tf.float32)
         model.compile(optimizer='adam', loss=CustomCrossEntropyDistributionLoss(weights=weights))
     else:
         model.add(tf.keras.layers.Dense(1, activation='linear'))
@@ -142,7 +144,7 @@ def create_model(input_shape, use_bins):
     return model
 
 
-def run_model(combination, train_data, test_data):
+def run_model(combination,all_data,train_data, test_data):
     """
     Run the model with specific attribute combinations.
 
@@ -150,6 +152,7 @@ def run_model(combination, train_data, test_data):
         combination (tuple): Attribute combination (use_bins, use_barcodes, use_weights).
         train_data (pd.DataFrame): Training data.
         test_data (np.ndarray): Test data.
+        all_data: all data
     """
 
     use_bins, use_barcodes, use_weights = combination # define combination
@@ -158,21 +161,21 @@ def run_model(combination, train_data, test_data):
     print("bins {}, weights {}, barcode {} \n".format(use_bins, use_weights, use_barcodes))
 
     # read data from csv files
-    all_sequences = np.array(list(map(oneHotDeg, train_data['VariableRegion'])))  # turn to one hot sequences
-    all_barcodes = np.array(list(map(oneHot, train_data['UniversalAllowedBCs'])))  # read barcodes
-    bins_all = np.transpose(np.array([train_data['nBin1Reads'], train_data['nBin2Reads'], train_data['nBin3Reads'],
-                                      train_data['nBin4Reads']]))  # bin labels
-    mean_fl_all = np.array(train_data['MeanFL'])  # read expression labels
+    all_sequences = np.array(list(map(oneHotDeg, train_data['101bp sequence'])))  # turn to one hot sequences
+    all_barcodes = np.array(list(map(oneHot, train_data['barcode'])))  # read barcodes
+    bins_all = np.transpose(np.array([train_data['nreadBin1'], train_data['nreadBin2'], train_data['nreadBin3'],
+                                      train_data['nreadBin4']]))  # bin labels
+    mean_fl_all = np.array(train_data['Mean Fl'])  # read expression labels
     mean_fl_all = mean_fl_all / max(mean_fl_all)  # normalize labels
-    readtot_all = np.array(train_data['TotalReads'])  # read total reads for every variant
+    readtot_all = np.array(all_data['readtot'])  # read total reads for every variant
 
     # read test data
-    test_sequences = np.array(list(map(oneHotDeg, test_data['VariableRegion'])))
-    test_barcodes = np.array(list(map(oneHot, test_data['UniversalAllowedBCs'])))
-    mean_fl_test = np.array(test_data['MeanFL'])  # test labels
+    test_sequences = np.array(list(map(oneHotDeg, test_data['101bp sequence'])))
+    test_barcodes = np.array(list(map(oneHot, test_data['barcode'])))
+    mean_fl_test = np.array(test_data['Mean Fl'])  # test labels
 
     # define weights
-    weights = np.array(train_data['TotalReads'])
+    weights = np.array(train_data['readtot'])
     weights = np.log(weights)
     weights = weights / max(weights)
 
@@ -252,7 +255,7 @@ def run_model(combination, train_data, test_data):
 
 def main():
     # read csv file with 140k sequences and expression data
-    all_data = pd.read_csv("T_AllRuns.csv")
+    all_data = pd.read_csv("unilib_variant_bindingsites_KM_mean_0_sorted.csv")
 
     # Select 2,000 random rows for the test set
     test_set = all_data.head(10000).sample(n=2000,random_state=42)
@@ -261,7 +264,7 @@ def main():
     train_data = all_data.drop(test_set.index)
 
     # Sort training data again by 'TotalReads'
-    train_data = train_data.sort_values(by='TotalReads', ascending=False)
+    train_data = train_data.sort_values(by='readtot', ascending=False)
 
     train_data = train_data.reset_index(drop=True)
 
@@ -271,7 +274,7 @@ def main():
 
     # Iterate through the combinations of attributes and call the function run_model() with them
     for combination in combinations:
-        run_model(combination, train_data, test_set)
+        run_model(combination,all_data, train_data, test_set)
 
 
 if __name__ == "__main__":
