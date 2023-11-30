@@ -5,11 +5,20 @@ from tensorflow.keras.layers import *
 from scipy.stats import pearsonr
 from tensorflow.keras.models import load_model, save_model
 import tensorflow as tf
+import random
 import keras
+import os
+from google.colab import drive
+drive.mount('/content/drive')
+seed_value=42
 
+os.environ['PYTHONHASHSEED']=str(seed_value)
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
 
-tf.random.set_seed(42)
-np.random.seed(42)
+tf.random.set_seed(seed_value)
+np.random.seed(seed_value)
+random.seed(seed_value)
+
 batch_size=32
 
 
@@ -52,14 +61,15 @@ def oneHotDeg(string):
         "G": [0, 0, 1, 0],
         "T": [0, 0, 0, 1],
         "K": [0, 0, 0.5, 0.5],
-        "M": [0.5, 0.5, 0, 0]
+        "M": [0.5, 0.5, 0, 0],
+        "N":  [0.25, 0.25, 0.25, 0.25]
     }
 
     # Initialize an empty matrix with the desired shape (4x101)
     one_hot_matrix = np.zeros((101, 4),dtype=np.float32)
 
     for i, base in enumerate(string):
-        one_hot_matrix[i, :] = mapping.get(base, [0.25, 0.25, 0.25, 0.25])
+        one_hot_matrix[i, :] = mapping.get(base)
 
     return one_hot_matrix
 
@@ -130,7 +140,7 @@ def train_predict(train_sequences, train_labels, train_weights, test_data1, test
     """
 
     # Load the pretrained model's weights
-    pretrained_model = load_model('pretrained_cnn_model.h5')
+    pretrained_model = load_model('/content/drive/My Drive/UNLIB_model/pretrained_cnn_model.h5')
 
     # Shuffle the data
     shuffled_indices = np.random.permutation(range(len(train_sequences)))
@@ -150,10 +160,12 @@ def train_predict(train_sequences, train_labels, train_weights, test_data1, test
     return predictions1, predictions2
 
 
+
+
 def main():
 
     # read csv of 6 million reads from de Boer-Regev experiment
-    train1 = pd.read_csv("6_million_read.csv")
+    train1 = pd.read_csv("/content/drive/My Drive/UNLIB_model/6_million_read.csv")
 
     sequences1 = list(train1['Sequence'])  # read sequences
     reverse_complement1 = list(map(reverse_complement, sequences1))  # create reverse complement sequences
@@ -167,8 +179,8 @@ def main():
 
 
     # read 67k variants data from csv file
-    train2 = pd.read_csv("all_variants_without_test.csv")
-    sequences2 = list(train2['VariableRegion'])  # read sequences
+    train2 = pd.read_csv("/content/drive/My Drive/UNLIB_model/all_variants_without_test.csv")
+    sequences2 = list(train2['101bp sequence'])  # read sequences
     reverse_complement2 = list(map(reverse_complement, sequences2))  # create reverse complement sequences
     sequences2.extend(reverse_complement2)  # add reverse complement sequences to sequences
     sequences2 = np.array(list(map(oneHotDeg, sequences2)))  # turn sequences to one hot vectors using function
@@ -186,8 +198,8 @@ def main():
 
 
     # read 2135 variants data with 22 barcodes
-    train3 = pd.read_csv("train_set_variants_22_barcodes.csv")
-    sequences3 = list(train3['VariableRegion'])  # read sequences
+    train3 = pd.read_csv("/content/drive/My Drive/UNLIB_model/train_set_variants_22_barcodes.csv")
+    sequences3 = list(train3['101bp sequence'])  # read sequences
     reverse_complement3 = list(map(reverse_complement, sequences3))  # reverse complement
     sequences3.extend(reverse_complement3)  # add reverse complements to sequences
     sequences3 = np.array(list(map(oneHotDeg, sequences3)))  # turn sequences to one hot vectors
@@ -205,8 +217,8 @@ def main():
 
 
     # read 300 validation variants
-    test1 = pd.read_csv("300_test_variants.csv")
-    test_sequences1 = list(test1['VariableRegion'])  # read sequences
+    test1 = pd.read_csv("/content/drive/My Drive/UNLIB_model/300_test_variants.csv")
+    test_sequences1 = list(test1['101bp sequence'])  # read sequences
     comp_test_sequences1 = list(map(reverse_complement, test_sequences1))  # reverse complements
     test_sequences1 = np.array(list(map(oneHotDeg, test_sequences1)))  # use one hot function
     comp_test_sequences1 = np.array(list(map(oneHotDeg, comp_test_sequences1)))
@@ -216,7 +228,7 @@ def main():
 
 
     # read 11 validation variants
-    test2 = pd.read_csv('11_validation_variants.csv')
+    test2 = pd.read_csv('/content/drive/My Drive/UNLIB_model/11_validation_variants.csv')
     test_sequences2 = list(test2['barcoded variant'])  # read sequences
     # exclude 15-nt barcode from the variant sequence
     test_sequences2 = [sequence[15:] for sequence in test_sequences2]
@@ -236,12 +248,15 @@ def main():
     cnn_model.add(Dense(1, activation='linear'))
     cnn_model.compile(optimizer='adam', loss='mse')
 
+    # shuffle train sequences and labels
+    shuffled_idx=np.random.permutation(range(len(sequences1)))
+    sequences1 = sequences1[shuffled_idx]
+    labels1 = labels1[shuffled_idx]
 
     #initialize data generator
     data_generator=DataGenerator(sequences=sequences1,labels=labels1,batch_size=batch_size)
     #fit model on 6 million dBR sequences using data generator
     cnn_model.fit(data_generator, steps_per_epoch=int(np.ceil(len(sequences1)/ batch_size)),epochs=1, verbose=1)
-
 
     #shuffle the training sequences
     shuffled_idx=np.random.permutation(range(len(sequences2)))
@@ -253,7 +268,7 @@ def main():
     cnn_model.fit(sequences2, labels2,shuffle=True, epochs=3, batch_size=batch_size, verbose=1, sample_weight=weights2)
 
     # save model's weights
-    cnn_model.save('pretrained_cnn_model.h5')
+    cnn_model.save('/content/drive/My Drive/UNLIB_model/pretrained_cnn_model.h5')
 
 
     all_predictions1 = []
@@ -274,22 +289,20 @@ def main():
     corr1,p_value1  = pearsonr(avg_predictions1, test_labels1)
     corr2,p_value2 = pearsonr(avg_predictions2, test_labels2)
 
-    # print pearson correlation
+    # print pearson correlation & p-value
     print("Correlations on 11: ", corr2, "P value: ",p_value2)
     print("Correlations on 300: ", corr1, "P value: ",p_value1)
 
-    test1_predictions=pd.DataFrame()
-    test2_predictions=pd.DataFrame()
 
-    # add columns for the 100 models average predictions and the true labels to the csv files of the validation sets
-    test1_predictions["Average_model_prediction"] = avg_predictions1
-    test2_predictions["Average_model_prediction"] = avg_predictions2
-    test1_predictions["True_labels"] = test_labels1
-    test2_predictions["True_labels"] = test_labels2
+    # create columns for the 100 models average predictions and the true labels
+    test1["Average_model_prediction"] = avg_predictions1
+    test2["Average_model_prediction"] = avg_predictions2
+    test1["True_labels"] = test_labels1
+    test2["True_labels"] = test_labels2
 
-    # Save the DataFrame to a CSV file
-    test1_predictions.to_csv('test_300_predictions.csv', index=False)
-    test2_predictions.to_csv('test_11_predictions.csv', index=False)
+    # Save the DataFrame with true labels verses predictions to a CSV file
+    test1.to_csv('/content/drive/My Drive/UNLIB_model/test_300_predictions.csv', index=False)
+    test2.to_csv('/content/drive/My Drive/UNLIB_model/test_11_predictions.csv', index=False)
 
 if __name__ == "__main__":
     main()
