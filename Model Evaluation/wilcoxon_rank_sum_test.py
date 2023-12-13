@@ -1,19 +1,8 @@
 import pandas as pd
 import scipy.stats as stats
 import numpy as np
+from statsmodels.stats import multitest
 
-
-def calculate_p_values_per_motif(motif_variants,original_motif, other_motifs):
-    p_values = []
-    contains_original_motif = motif_variants[original_motif]
-
-    for other_motif in other_motifs:
-        contains_other_motif = motif_variants[other_motif]
-        statistic, p_value = stats.mannwhitneyu(contains_original_motif, contains_other_motif)
-        p_values.append(p_value)
-
-    fisher_p_value = stats.combine_pvalues(p_values, method='fisher', weights=None)[1]
-    return fisher_p_value,p_values
 
 def main():
 
@@ -53,21 +42,36 @@ def main():
     # sort motifs by median of mean FL
     motifs = sorted(motifs, key=lambda x: motif_variants[x].median(axis=0), reverse=True)
 
-    p_values_matrix = np.zeros((len(motifs), len(motifs)))
+    p_values=[]
 
     for i in range(len(motifs)):
-        median=motif_variants[motifs[i]].median()
-        original_motif = motifs[i]
-        print(original_motif,median)
-        other_motifs = motifs
-        combined_p_value, p_values = calculate_p_values_per_motif(motif_variants, original_motif, other_motifs)
-        p_values_matrix[i, :] = p_values
+        motif = motifs[i]
+        median=motif_variants[motif].median()
+        print(motif,median)
+        contain_motif=motif_variants[motif]
+        other_motifs = all_data
+        # remove all motifs in -5 or plus 5 in the ranking by median from the original motif
+        for close_motif in motifs[max(0, i-5):min(i+6, len(motifs))]:
+             other_motifs=other_motifs[~other_motifs['101bp sequence'].str.contains(close_motif)]
+        statistic, p_value = stats.mannwhitneyu(contain_motif, other_motifs['Mean Fl'])
+        p_values.append(p_value)
 
-    p_values_df = pd.DataFrame(p_values_matrix, index=motifs, columns=motifs)
+    p_value_df=pd.DataFrame()
+
+    p_value_df["P_values"]=p_values
+
+    p_values_df = pd.DataFrame(p_values, index=motifs)
+
+    # Perform Benjamini-Hochberg correction
+    rejected, corrected_p_values, _, _ = multitest.multipletests(p_values_df.values.flatten(), alpha=0.1,
+                                                                 method='fdr_bh')
+    # Add the rejection column to the DataFrame
+    p_value_df['Rejected Benjamini Hochberg'] = rejected
+
+    p_value_df['Corrected p value']=corrected_p_values
 
     # Save the DataFrame to a CSV file
-    p_values_df.to_csv("motif_comparison_matrix.csv")
-
+    p_value_df.to_csv('p_values_no_close_motifs.csv', index_label='Motif')
 
 if __name__ == '__main__':
     main()
