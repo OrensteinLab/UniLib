@@ -5,9 +5,7 @@ from tensorflow.keras.layers import *
 from scipy.stats import pearsonr
 import tensorflow as tf
 import random
-import keras
 import os
-
 
 seed_value=42
 
@@ -19,7 +17,6 @@ np.random.seed(seed_value)
 random.seed(seed_value)
 
 batch_size=32
-
 
 def oneHotDeg(string):
     """
@@ -48,53 +45,6 @@ def oneHotDeg(string):
         one_hot_matrix[i, :] = mapping.get(base)
 
     return one_hot_matrix
-
-
-def reverse_complement(dna_sequence):
-    """
-    Computes the reverse complement of a given DNA sequence.
-
-    Parameters:
-    - dna_sequence (str): Input DNA sequence.
-
-    Returns:
-    - reverse_comp_sequence (str): Reverse complement of the input DNA sequence.
-    """
-    # Define a dictionary to map nucleotides to their complements
-    complement_dict = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N', 'M': 'K', 'K': 'M'}
-
-    # Reverse the DNA sequence and find the complement for each nucleotide
-    reverse_comp_sequence = [complement_dict[nt] for nt in reversed(dna_sequence)]
-
-    # Convert the list of complement nucleotides back to a string
-    return ''.join(reverse_comp_sequence)
-
-
-def reverse_comp_prediction(model, test_data):
-    """
-    Make predictions on both the original sequences and their reverse complements and average the results.
-
-    Parameters:
-    - model: The machine learning model.
-    - test_sequences: Original DNA sequences.
-    - comp_test_sequences: Reverse complement DNA sequences.
-
-    Returns:
-    - predictions (list): Average predictions for each sequence.
-    """
-    test_sequences, comp_test_sequences=test_data
-
-    # use model to predict test sequences labels test data
-    predictions_original = model.predict(test_sequences)
-    # use model to predict reverse complement sequences labels
-    predictions_reverse_comp = model.predict(comp_test_sequences)
-    predictions = []
-    # for each sequence, the model's prediction is the average of the model's prediction on the sequence itself and its reverse complement
-    for pred, comp_pred in zip(predictions_original, predictions_reverse_comp):
-        avg_pred = (pred[0] + comp_pred[0]) / 2
-        predictions.append(avg_pred)
-
-    return predictions
 
 
 def train_predict(train_sequences, train_labels, train_weights, test_data1, test_data2):
@@ -150,10 +100,7 @@ def main():
     # read 300 validation variants
     test1 = pd.read_csv("300_test_variants.csv")
     test_sequences1 = list(test1['101bp sequence'])  # read sequences
-    #comp_test_sequences1 = list(map(reverse_complement, test_sequences1))  # reverse complements
     test_sequences1 = np.array(list(map(oneHotDeg, test_sequences1)))  # use one hot function
-    # comp_test_sequences1 = np.array(list(map(oneHotDeg, comp_test_sequences1)))
-    # test_data1=test_sequences1,comp_test_sequences1
     # read labels
     test_labels1 =test1['Mean_FL']
 
@@ -163,44 +110,37 @@ def main():
     test_sequences2 = list(test2['sequence'])  # read sequences
     # exclude 15-nt barcode from the variant sequence
     test_sequences2 = [sequence[15:] for sequence in test_sequences2]
-    # comp_test_sequences2 = list(map(reverse_complement, test_sequences2))  # use reverse complement function
     test_sequences2 = np.array(list(map(oneHotDeg, test_sequences2)))  # turn to one hot vectors
-    # comp_test_sequences2 = np.array(list(map(oneHotDeg, comp_test_sequences2)))  # turn to one hot vectors
-    # test_data2 = test_sequences2,comp_test_sequences2
     # read labels
     test_labels2 = test2['mean_fl']
 
     # read 2097 variants data with mixed bases
     train = pd.read_csv("TableWITHKM2097.csv")
-    train=train[~train['x101bpsequence'].isin(list(test1['101bp sequence']))]
+    train=train[~train['x101bpsequence'].isin(list(test1['101bp sequence']))] # remove test sequences from train dataset
     train_sequences = list(train['x101bpsequence'])  # read sequences
-    #reverse_comp = list(map(reverse_complement, train_sequences))  # reverse complement
-    #train_sequences.extend(reverse_comp)  # add reverse complements to sequences
     train_sequences = np.array(list(map(oneHotDeg, train_sequences)))  # turn sequences to one hot vectors
 
     # read labels & normalize
     mean_fl_train = train['MeanFL']
     labels_train = np.array(mean_fl_train/ max(mean_fl_train))
-    # labels_train = np.concatenate((labels_train, labels_train))
 
-    # use sample weights
+    # define sample weights
     weights = np.array(train['readtot'])
     weights = np.log(weights)
     weights = weights / max(weights)
-    # weights = np.concatenate((weights, weights))
 
 
     all_predictions1 = []
     all_predictions2 = []
 
-    # run 100 models as part of the random ensemble initialization technique
+    # run 100 models with random initialization as part of the random ensemble initialization technique
     for i in range(100):
-        # Use the function to train pretrained model on 2135 sequences with 22 barcodes and make predictions
+        # Use the function to train model on MBO dataset with random initializations predictions
         predictions1, predictions2 = train_predict(train_sequences, labels_train, weights,test_sequences1,test_sequences2)
         all_predictions1.append(predictions1)
         all_predictions2.append(predictions2)
 
-    # calculate mean over the predictions of the 100 models
+    # calculate mean over the predictions of the 100 ensemble models
     avg_predictions1 = np.mean(all_predictions1, axis=0)
     avg_predictions2 = np.mean(all_predictions2, axis=0)
 
@@ -211,7 +151,6 @@ def main():
     # print pearson correlation & p-value
     print("Correlations on 11: ", corr2, "P value: ",p_value2)
     print("Correlations on 300: ", corr1, "P value: ",p_value1)
-
 
     # create columns for the 100 models average predictions and the true labels
     test1["Average_model_prediction"] = avg_predictions1
