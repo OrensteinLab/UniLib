@@ -107,7 +107,8 @@ mean_fl_test1= test1['Mean_FL']
 # read training data
 train_data=pd.read_csv("unilib_variant_bindingsites_KM_mean_0_sorted.csv",nrows=20000,skiprows=0)
 
-train_data=train_data[~train_data['101bp sequence'].isin(list(test1['101bp sequence']))] # remove 300 test sequences from train data
+# remove 300 test sequences from train data
+train_data=train_data[~train_data['101bp sequence'].isin(list(test1['101bp sequence']))] 
 
 train_sequences = np.array(list(map(oneHotDeg, train_data['101bp sequence'])))  # turn to one hot sequences
 
@@ -142,9 +143,9 @@ pred_mean_fl1 = model.predict(np.array(test_sequences1))
 
 # calcuclate pearson correlation on 300 test variants
 corr300 = pearsonr(mean_fl_test1, pred_mean_fl1.reshape(len(pred_mean_fl1)))[0]
-print("Corr11: ",corr300)
+print("Corr300: ",corr300)
 
-
+# add predictions column to test dataframe
 test1["ADM predictions"]=pred_mean_fl1.reshape(len(pred_mean_fl1))
 
 test1.to_csv("ADM_predictions_300_test_variants.csv")
