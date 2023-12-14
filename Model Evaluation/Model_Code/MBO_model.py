@@ -65,7 +65,7 @@ def train_predict(train_sequences, train_labels, train_weights, test_data1, test
     - predictions11 (list): Predictions for the 11 variants.
     """
 
-    # create a new convolutional network model
+    # Initialize a new convolutional network model
     cnn_model = Sequential()
     cnn_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(101, 4), use_bias=True))
     cnn_model.add(GlobalMaxPooling1D())
@@ -86,9 +86,9 @@ def train_predict(train_sequences, train_labels, train_weights, test_data1, test
     cnn_model.fit(sequences_shuffled, labels_shuffled, epochs=3, batch_size=batch_size, verbose=1,
                          sample_weight=weights_shuffled, shuffle=True)
 
-    predictions1 = cnn_model.predict(test_data1) #reverse_comp_prediction(cnn_model, test_data1)
+    predictions1 = cnn_model.predict(test_data1)
     predictions1=[pred[0] for pred in predictions1]
-    predictions2 = cnn_model.predict(test_data2) #reverse_comp_prediction(cnn_model, test_data2)
+    predictions2 = cnn_model.predict(test_data2)
     predictions2 = [pred[0] for pred in predictions2]
 
     return predictions1, predictions2
@@ -114,18 +114,18 @@ def main():
     # read labels
     test_labels2 = test2['mean_fl']
 
-    # read 2097 variants data with mixed bases
-    train = pd.read_csv("TableWITHKM2097.csv")
-    train=train[~train['x101bpsequence'].isin(list(test1['101bp sequence']))] # remove test sequences from train dataset
-    train_sequences = list(train['x101bpsequence'])  # read sequences
+    # read 2098 variants data with mixed bases and 22 barcodes
+    train = pd.read_csv("MBO_dataset.csv")
+    train=train[~train['101bp sequence'].isin(list(test1['101bp sequence']))] # remove test sequences from train dataset
+    train_sequences = list(train['101bp sequence'])  # read sequences
     train_sequences = np.array(list(map(oneHotDeg, train_sequences)))  # turn sequences to one hot vectors
 
     # read labels & normalize
-    mean_fl_train = train['MeanFL']
+    mean_fl_train = train['Mean_FL']
     labels_train = np.array(mean_fl_train/ max(mean_fl_train))
 
     # define sample weights
-    weights = np.array(train['readtot'])
+    weights = np.array(train['total_reads'])
     weights = np.log(weights)
     weights = weights / max(weights)
 
@@ -135,7 +135,7 @@ def main():
 
     # run 100 models with random initialization as part of the random ensemble initialization technique
     for i in range(100):
-        # Use the function to train model on MBO dataset with random initializations predictions
+        # Use the function to train model on MBO dataset with random initializations and make predictions
         predictions1, predictions2 = train_predict(train_sequences, labels_train, weights,test_sequences1,test_sequences2)
         all_predictions1.append(predictions1)
         all_predictions2.append(predictions2)
