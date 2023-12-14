@@ -69,19 +69,14 @@ def main():
     # Select the top 300 rows with most reads as test set
     top_300_df = variants_22_barcodes_sorted.head(300)
 
-    # select rest of rows as train set.
-    train_variant_22_barcodes= variants_22_barcodes_sorted.tail(2435-300)
-
-    train_variant_22_barcodes.to_csv("train_set_variants_22_barcodes.csv", index=False)
+    mixed_base_df = variant_22_barcodes_df[(variant_22_barcodes_df['101bp sequence'].str.contains("K")) | (
+        variant_22_barcodes_df['101bp sequence'].str.contains("M"))]
 
     # create file with 300 test variants
     top_300_df.to_csv("300_test_variants.csv",index=False)
 
-    # exclude test variants from the table of all variants
-    all_variants_without_test = all_variants[~all_variants['variant'].isin(top_300_df['variant'])]
+    mixed_base_df.to_csv("MBO_dataset.csv", index=False) # create dataset for MBO
 
-    # Write data frame to csv file
-    all_variants_without_test.to_csv("all_variants_without_test.csv",index=False)
 
 if __name__ == '__main__':
     main()
