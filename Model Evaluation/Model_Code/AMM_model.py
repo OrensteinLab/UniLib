@@ -114,7 +114,7 @@ def main():
     # read labels
     test_labels2 = test2['mean_fl']
 
-    # read 2098 variants data with mixed bases and 22 barcodes
+    # read 2432 variants data with 22 barcodes
     train = pd.read_csv("train_set_variants_22_barcodes.csv")
     train_sequences = list(train['101bp sequence'])  # read sequences
     train_sequences = np.array(list(map(oneHotDeg, train_sequences)))  # turn sequences to one hot vectors
