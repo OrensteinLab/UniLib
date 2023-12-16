@@ -1,40 +1,47 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
-# Data for the first graph
-pearson_scores1 = [0.5475, 0.5696]
-x_labels1 = ['11 validation sURS', '300 validation variants']
+# Sample data (replace with your actual data)
+labels = ['dBR', 'ADM', 'AMM', 'MBO']
+variants_300 = [0.11, 0.67, 0.63, 0.61]  # Replace with actual values
+variants_11 = [0.65, -0.18, 0.48, 0.61]  # Replace with actual values
+val_20_percent = [0.45, 0.48, 0.51]  # Replace with actual values
 
-# Data for the second graph
-pearson_scores2 = [0.63, -0.02]
-x_labels2 = ['dBR Model', 'ADM Model']
+# Define the width of the bars
+bar_width = 0.2
 
-# Create a figure with two subplots
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 7))  # 1 row, 2 columns
+# Set up positions for the bars
+r1 = np.arange(len(labels))
+r2 = [x + bar_width + 0.02 for x in r1]  # Adjusted constant offset for smaller spacing
+r3 = [x + 2 * bar_width + 0.04 for x in r1]  # Adjusted constant offset for smaller spacing
 
-# Create the first bar graph
-bars1 = ax2.bar(x_labels1, pearson_scores1, color=['#edb11f', '#da5118'], align='center', width=0.4)
-ax2.set_xlabel('Validation set', fontsize=12)
-ax2.set_ylabel('Pearson correlation', fontsize=12)
-ax2.set_xticklabels([])
-ax2.set_ylim(-0.1, 1)
-ax2.set_yticks([0.1 * i for i in range(-1,11)])
-ax2.axhline(y=0, color='gray', linestyle='--', linewidth=1)
-ax2.legend(bars1, x_labels1, loc='upper left', fontsize=12)
+plt.figure(figsize=(12, 6))
 
-# Create the second bar graph
-bars2 = ax1.bar(x_labels2, pearson_scores2, color=['#0c70bc', '#6bd47a'], align='center', width=0.4)
-ax1.set_xlabel('Yeast measurements', fontsize=12)
-ax1.set_ylabel('Pearson correlation on validation variants', fontsize=12)
-ax1.set_ylim(-0.1, 1)
-ax1.set_xticklabels([])
-ax1.set_yticks([0.1 * i for i in range(-1, 11)])
-ax1.axhline(y=0, color='gray', linestyle='--', linewidth=1)
-ax1.legend(bars2, x_labels2, loc='upper left', fontsize=12)
+# Create the bar plot
+plt.bar(r1, variants_300, color='#0c70bc', width=bar_width, edgecolor='grey', label='300 validation variants')
+plt.bar(r2, variants_11, color="#da5118", width=bar_width, edgecolor='grey', label='11 validation sURS')
 
-# Adjust spacing between subplots
-plt.tight_layout()
+# Add 'val_20_percent' to all models except 'DBR'
+plt.bar(r3[1], val_20_percent[0], color='#edb11f', width=bar_width, edgecolor='grey', label='20% test set (5CV)')
+plt.bar(r3[2], val_20_percent[1], color='#edb11f', width=bar_width, edgecolor='grey')
+plt.bar(r3[3], val_20_percent[2], color='#edb11f', width=bar_width, edgecolor='grey')
 
-# Show the combined graph
-plt.savefig("figure_3e.png", dpi=300)
+# Add labels, title, and legend
+plt.ylabel('Pearson correlation', fontsize=13)
 
+# Set legend at the top
+plt.legend(loc='upper left', fontsize=11)
+
+# Add a gap between bar pairs
+plt.xticks([r + 1.5 * bar_width for r in r1], labels, fontsize=11)
+plt.yticks([0.1 * i for i in range(-2, 11)])
+
+# Add a horizontal line at y=0
+plt.axhline(y=0, color='gray', linestyle='--', linewidth=1)
+
+# Adjust left and right padding
+plt.subplots_adjust(left=0.18, right=0.9, top=0.90)
+
+plt.savefig("figure_3e_revised.png", dpi=300)
+# Show the plot
 plt.show()
