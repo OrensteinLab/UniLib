@@ -7,17 +7,16 @@ import tensorflow as tf
 import random
 import os
 
-seed_value=42
+seed_value = 42
 
-os.environ['PYTHONHASHSEED']=str(seed_value)
+os.environ['PYTHONHASHSEED'] = str(seed_value)
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
 
 tf.random.set_seed(seed_value)
 np.random.seed(seed_value)
 random.seed(seed_value)
 
-batch_size=32
-
+batch_size = 32
 
 def oneHotDeg(string):
     """
@@ -36,19 +35,19 @@ def oneHotDeg(string):
         "T": [0, 0, 0, 1],
         "K": [0, 0, 0.5, 0.5],
         "M": [0.5, 0.5, 0, 0],
-        "N":  [0.25, 0.25, 0.25, 0.25]
+        "N": [0.25, 0.25, 0.25, 0.25]
     }
 
     # Initialize an empty matrix with the desired shape (4x101)
-    one_hot_matrix = np.zeros((101, 4),dtype=np.float32)
+    one_hot_matrix = np.zeros((101, 4), dtype=np.float32)
 
     for i, base in enumerate(string):
         one_hot_matrix[i, :] = mapping.get(base)
 
     return one_hot_matrix
+
 
 def longerOneHot(string):
-  
     mapping = {
         "A": [1, 0, 0, 0],
         "C": [0, 1, 0, 0],
@@ -56,74 +55,65 @@ def longerOneHot(string):
         "T": [0, 0, 0, 1],
         "K": [0, 0, 0.5, 0.5],
         "M": [0.5, 0.5, 0, 0],
-        "N":  [0.25, 0.25, 0.25, 0.25]
+        "N": [0.25, 0.25, 0.25, 0.25]
     }
 
     # Initialize an empty matrix with the desired shape (4x101)
-    one_hot_matrix = np.zeros((239, 4),dtype=np.float32)
+    one_hot_matrix = np.zeros((186, 4), dtype=np.float32)
 
     for i, base in enumerate(string):
         one_hot_matrix[i, :] = mapping.get(base)
 
     return one_hot_matrix
 
-def shorterOneHot(string):
 
-    mapping = {
-        "A": [1, 0, 0, 0],
-        "C": [0, 1, 0, 0],
-        "G": [0, 0, 1, 0],
-        "T": [0, 0, 0, 1],
-        "K": [0, 0, 0.5, 0.5],
-        "M": [0.5, 0.5, 0, 0],
-        "N":  [0.25, 0.25, 0.25, 0.25]
-    }
 
-    # Initialize an empty matrix with the desired shape (4x101)
-    one_hot_matrix = np.zeros((154, 4),dtype=np.float32)
-
-    for i, base in enumerate(string):
-        one_hot_matrix[i, :] = mapping.get(base)
-
-    return one_hot_matrix
 
 def main():
-
     # read 2435 variants data with 22 barcodes
-    train = pd.read_csv("Table2435.csv")
-    train_sequences = list(train['x101bpsequence'])  # read sequences
+    train = pd.read_csv("MBO_dataset.csv")
+    train_sequences = list(train['101bp sequence'])  # read sequences
     train_sequences = np.array(list(map(oneHotDeg, train_sequences)))  # turn sequences to one hot vectors
 
     # read labels & normalize
-    mean_fl_train = train['MeanFL']
+    mean_fl_train = train['Mean_FL']
     labels_train = np.array(mean_fl_train / max(mean_fl_train))
 
     # use sample weights
-    weights = np.array(train['readtot'])
+    weights = np.array(train['total_reads'])
     weights = np.log(weights)
     weights = weights / max(weights)
 
-    test = pd.read_csv('32_sURS.csv')
-    test_sequences=list(test['sequence'])
-    mean_fl_test=test['mean_fl']
-    mean_fl_test=list(mean_fl_test)
+    test =pd.read_csv("measured yeast all validation results.csv",nrows=32,skiprows=0)
+    test_sequences = list(test['sequence'])
+    mean_fl_test = test['measured FL-yeast with mCore1 promoter']
+    mean_fl_test = list(mean_fl_test)
+    variants=list(test["variant"])
 
-    shorter_sequences=[]
-    shorter_sequences_fl=[]
-    longer_sequences=[]
+    shorter_sequences = []
+    shorter_sequences_fl = []
+    shorter_variant=[]
+    longer_sequences = []
     longer_sequences_fl = []
+    longer_variants=[]
 
-    # divide validation sequences into 2 groups of different lengths
-    for seq,fl in zip(test_sequences,mean_fl_test):
-        if len(seq)==154:
+    # divide validation sequences and mean fl values into 2 groups of different length sequences
+    for seq, fl,variant in zip(test_sequences, mean_fl_test,variants):
+        if len(seq) == 154:
             shorter_sequences.append(seq)
             shorter_sequences_fl.append(fl)
+            shorter_variant.append(variant)
         else:
             longer_sequences.append(seq)
             longer_sequences_fl.append(fl)
+            longer_variants.append(variant)
 
-    longer_sequences_one_hot=np.array(list(map(longerOneHot, longer_sequences)))
-    shorter_sequences_one_hot = np.array(list(map(shorterOneHot, shorter_sequences)))
+    longer_sequences=[seq[27:213] for seq in longer_sequences] # get only 186bp sequence and exclude restrictions sites
+    shorter_sequences=[seq[27:128] for seq in shorter_sequences]  # get only 101bp sequence and exclude restrictions sites
+
+    # turn sequences to one hot vectors
+    longer_sequences_one_hot = np.array(list(map(longerOneHot, longer_sequences)))
+    shorter_sequences_one_hot = np.array(list(map(oneHotDeg, shorter_sequences)))
 
     # initialize a convolutional network model
     cnn_model = Sequential()
@@ -142,7 +132,10 @@ def main():
 
     # Fit the model on shuffled data
     cnn_model.fit(sequences_shuffled, labels_shuffled, epochs=3, batch_size=batch_size, verbose=1,
-                         sample_weight=weights_shuffled, shuffle=True)
+                  sample_weight=weights_shuffled, shuffle=True)
+    # predict on shorter 101bp sequences
+    shorter_predictions = cnn_model.predict(shorter_sequences_one_hot)
+    shorter_predictions = [pred[0] for pred in shorter_predictions]
 
     # save trained model's weights for all layers
     all_weights = []
@@ -150,55 +143,73 @@ def main():
         layer_weights = layer.get_weights()
         all_weights.append(layer_weights)
 
-    # initialize new models for sequences of different lengths
+    # initialize new models for sequences with longer input lengths
     longer_model = Sequential()
-    longer_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(239, 4), use_bias=True))
+    longer_model.add(
+        Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(186, 4), use_bias=True))
     longer_model.add(GlobalMaxPooling1D())
     longer_model.add(Dense(16, activation='relu'))
     longer_model.add(Dense(1, activation='linear'))
     longer_model.compile(optimizer='adam', loss='mse')
 
-    shorter_model = Sequential()
-    shorter_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(154, 4), use_bias=True))
-    shorter_model.add(GlobalMaxPooling1D())
-    shorter_model.add(Dense(16, activation='relu'))
-    shorter_model.add(Dense(1, activation='linear'))
-    shorter_model.compile(optimizer='adam', loss='mse')
 
     # initialize new models weights with the weights of the trained model
     for i, layer in enumerate(longer_model.layers):
         layer.set_weights(all_weights[i])
 
-    for i, layer in enumerate(shorter_model.layers):
-        layer.set_weights(all_weights[i])
-
     # use models to make predictions on different lengths sequences
-    longer_predictions=longer_model.predict(longer_sequences_one_hot)
-    longer_predictions=[pred[0] for pred in longer_predictions]
-
-    shorter_predictions=shorter_model.predict(shorter_sequences_one_hot)
-    shorter_predictions=[pred[0] for pred in shorter_predictions]
+    longer_predictions = longer_model.predict(longer_sequences_one_hot)
+    longer_predictions = [pred[0] for pred in longer_predictions]
 
     # calculate Pearson correlation on 32 variants
-    corr, p_value = pearsonr(shorter_predictions+longer_predictions, shorter_sequences_fl+longer_sequences_fl)
+    corr, p_value = pearsonr(shorter_predictions + longer_predictions, shorter_sequences_fl + longer_sequences_fl)
 
     print("Correlations on 32: ", corr, "P value: ", p_value)
 
-    variant_32=pd.DataFrame()
+    variant_32 = pd.DataFrame()
 
-    variant_32['sequence']=shorter_sequences+longer_sequences
+    # add sequence column with the short and long sequences
+    variant_32['sequence'] = shorter_sequences + longer_sequences
+    variant_32['variant']=shorter_variant+longer_variants
 
-    pbm = pd.read_csv("measured yeast all validation results.csv")
+    variant_gb_mapping=dict(zip(test['variant'],test["gb #"]))
 
-    sequence_variant_mapping = dict(zip(pbm['sequence'], pbm['variant']))
+    # add gb num column according to mapping
+    variant_32['gb #'] = variant_32['variant'].map(variant_gb_mapping)
 
-    variant_32['variant'] = variant_32['sequence'].map(sequence_variant_mapping)
+    measured_CHO_Hela=pd.read_csv("Hela-CHO-yeast data.csv")
 
-    variant_32['mean fl']=shorter_sequences_fl+longer_sequences_fl
-    variant_32['ML prediction']=shorter_predictions+longer_predictions
+    # merge our table with the Hela and CHO data table
+    variant_32=pd.merge(variant_32,measured_CHO_Hela, on='gb #', how='left')
+
+    # add mean fl and ml prediction columns to dataframe
+    variant_32['mean fl'] = shorter_sequences_fl + longer_sequences_fl
+    variant_32['ML prediction'] = shorter_predictions + longer_predictions
 
     # Save the DataFrame to a new CSV file
     variant_32.to_csv("32_sURS_model_results.csv", index=False)
+
+    # variant names of 8 uncorrelated variants between yeast and CHO cells
+    variants_to_drop = [
+        "(3_30_28GA)x2*",
+        "(3_30_28TC)x2*",
+        "3_30_28TC*",
+        "3_28TC_30*",
+        "28TC_3_30*",
+        "28TC_30_3*",
+        "30_3_28TC*",
+        "30_28TC_3*"
+    ]
+
+    # Create a new DataFrame without the 8 uncorrelated dropped variants - with 24 correlated variants
+    correlated_24_variants = variant_32[~variant_32['variant'].isin(variants_to_drop)].copy()
+
+    print("Correlation between  model predictions and 24 correlated yeast-CHO variants: ",pearsonr(list(correlated_24_variants['measured FL-yeast with mCore1 promoter']), list(correlated_24_variants["ML prediction"])))
+    print("Correlation between CHO cells and model predictions: ", pearsonr(list(correlated_24_variants['CHO']),list(correlated_24_variants["ML prediction"])))
+    print("Correlation Hela cells and model predictions: ", pearsonr(list(correlated_24_variants['Hela (med cell #)']), list(correlated_24_variants["ML prediction"])))
+
+    # Save the new DataFrame to a new CSV file
+    correlated_24_variants.to_csv("24_correlated_variants_sURS_model_results.csv", index=False)
 
 if __name__ == "__main__":
     main()
