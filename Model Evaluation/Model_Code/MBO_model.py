@@ -46,49 +46,6 @@ def oneHotDeg(string):
     return one_hot_matrix
 
 
-def reverse_complement(dna_sequence):
-    """
-    Computes the reverse complement of a given DNA sequence.
-    Parameters:
-    - dna_sequence (str): Input DNA sequence.
-    Returns:
-    - reverse_comp_sequence (str): Reverse complement of the input DNA sequence.
-    """
-    # Define a dictionary to map nucleotides to their complements
-    complement_dict = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N', 'M': 'K', 'K': 'M'}
-
-    # Reverse the DNA sequence and find the complement for each nucleotide
-    reverse_comp_sequence = [complement_dict[nt] for nt in reversed(dna_sequence)]
-
-    # Convert the list of complement nucleotides back to a string
-    return ''.join(reverse_comp_sequence)
-
-
-def reverse_comp_prediction(model, test_data):
-    """
-    Make predictions on both the original sequences and their reverse complements and average the results.
-    Parameters:
-    - model: The machine learning model.
-    - test_sequences: Original DNA sequences.
-    - comp_test_sequences: Reverse complement DNA sequences.
-    Returns:
-    - predictions (list): Average predictions for each sequence.
-    """
-    test_sequences, comp_test_sequences = test_data
-
-    # use model to predict test sequences labels test data
-    predictions_original = model.predict(test_sequences)
-    # use model to predict reverse complement sequences labels
-    predictions_reverse_comp = model.predict(comp_test_sequences)
-    predictions = []
-    # for each sequence, the model's prediction is the average of the model's prediction on the sequence itself and its reverse complement
-    for pred, comp_pred in zip(predictions_original, predictions_reverse_comp):
-        avg_pred = (pred[0] + comp_pred[0]) / 2
-        predictions.append(avg_pred)
-
-    return predictions
-
-
 def train_predict(train_sequences, train_labels, train_weights, test_data1, test_data2):
     """
     Run an ensemble of machine learning models and make predictions on test sequences.
@@ -193,8 +150,8 @@ def main():
     test2["Average_MBO_prediction"] = avg_predictions2
 
     # Save the DataFrame with true labels verses predictions to a CSV file
-    test1.to_csv('test_300_predictions_MBO.csv', index=False)
-    test2.to_csv('test_11_predictions_MBO.csv', index=False)
+    test1.to_csv('MBO_model_test_300_predictions.csv', index=False)
+    test2.to_csv('MBO_model_test_11_predictions.csv', index=False)
 
 
 if __name__ == "__main__":
