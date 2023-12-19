@@ -3,7 +3,7 @@
 ## Overview ##
 
 
-This Python script enables the prediction of numerical values for given DNA sequences using pre-trained deep learning models. The models: ADM, AMM, and MBO, predict mean flourescence based on the dna sequence of synthetic upstream regulatory region. This readme provides information on how to use the script, prerequisites for execution, and details about the models and input data.
+This Python script enables the prediction of numerical expression values for given DNA sequences using pre-trained deep learning models. The models: ADM, AMM, and MBO, predict mean flourescence based on the dna sequence of synthetic upstream regulatory region. This readme provides information on how to use the script, prerequisites for execution, and details about the models and input data.
 
 **Prerequisites**
 
