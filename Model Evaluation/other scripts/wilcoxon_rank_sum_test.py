@@ -56,7 +56,9 @@ def main():
 
     p_value_df = pd.DataFrame()
 
-    p_value_df["P_values"] = p_values
+    p_value_df["motif"]=motifs
+
+    p_value_df["Wilcoxon_rank_sum_P_value"] = p_values
 
     p_values_df = pd.DataFrame(p_values, index=motifs)
 
@@ -64,12 +66,12 @@ def main():
     rejected, corrected_p_values, _, _ = multitest.multipletests(p_values_df.values.flatten(), alpha=0.1,
                                                                  method='fdr_bh')
     # Add the rejection column to the DataFrame
-    p_value_df['Rejected Benjamini Hochberg'] = rejected
+    p_value_df['Null hypothesis rejected'] = rejected
 
-    p_value_df['Corrected p value'] = corrected_p_values
+    p_value_df['Benjamini Hochberg corrected p value'] = corrected_p_values
 
     # Save the DataFrame to a CSV file
-    p_value_df.to_csv('p_values_no_close_motifs.csv', index_label='Motif')
+    p_value_df.to_csv('Wilcoxon_rank_sum_ranked_motifs.csv', index_label='Motif')
 
 
 if __name__ == '__main__':
