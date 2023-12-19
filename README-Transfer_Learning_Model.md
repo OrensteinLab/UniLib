@@ -30,7 +30,7 @@ The script employs a one-hot encoding scheme to represent DNA sequences. Each nu
 
 "A": [1, 0, 0, 0]<br>
 "C": [0, 1, 0, 0]<br>
-"G": [0, 0, 1, 0]><br>
+"G": [0, 0, 1, 0]<br>
 "T": [0, 0, 0, 1]<br>
 "K": [0, 0, 0.5, 0.5]<br>
 "M": [0.5, 0.5, 0, 0]<br>
