@@ -68,6 +68,7 @@ def main():
     # use model to make predictions on sequences
     predictions=[pred[0] for pred in model.predict(sequences)]
 
+    # write prediction results to output file
     with open(output_file,"w") as output:
         for pred in predictions:
             output.write(str(pred)+"\n")
