@@ -49,6 +49,7 @@ The script loads pre-trained models based on the specified model_name. Currently
 The input file should contain DNA sequences of synthetic upstream regulatory region, with each sequence on a new line. The sequence should be 101 bases in length for the models. The script reads these sequences from the input file.
 
 **Output**
+
 The script outputs predictions for each input sequence to the specified output_file. Each prediction is written to a new line.
 
 **Example**
