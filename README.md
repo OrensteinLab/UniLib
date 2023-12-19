@@ -104,7 +104,7 @@ Once finished, the desert sequence will appear on the MATLAB's command window bu
 ## Overview ##
 
 
-This Python script enables the prediction of numerical values for given DNA sequences using pre-trained deep learning models. The models: ADM, AMM, and MBO, predict mean flourescence based on the dna sequence of synthetic upstream regulatory region. This readme provides information on how to use the script, prerequisites for execution, and details about the models and input data.
+This Python script enables the prediction of numerical gene expression values for given DNA sequences using pre-trained deep learning models. The models: ADM, AMM, and MBO, predict mean flourescence based on the dna sequence of synthetic upstream regulatory region. This readme provides information on how to use the script, prerequisites for execution, and details about the models and input data.
 
 **Prerequisites**
 
@@ -146,7 +146,7 @@ The script employs a one-hot encoding scheme to represent DNA sequences. Each nu
 
 The script loads pre-trained models based on the specified model_name. Currently available models are:
 
-* ADM (All Data Model) - Trained on 20,000 sequences with the heighest number of read from the expreiment<br>
+* ADM (All Data Model) - Trained on 20,000 sequences with the highest number of reads from the expreiment<br>
 * AMM (All Motif Model)- Trained on 2,435 sequences with 22 barcodes each <br>
 * MBO (Mixed Bases Only Model)- Trained on 2,098 sequences with 22 barcodes and at least one mixed base (K/M) <br>
 
