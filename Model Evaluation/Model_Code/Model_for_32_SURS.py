@@ -18,6 +18,7 @@ random.seed(seed_value)
 
 batch_size = 32
 
+
 def oneHotDeg(string):
     """
     Converts a DNA sequence to a one-hot encoding.
@@ -67,8 +68,6 @@ def longerOneHot(string):
     return one_hot_matrix
 
 
-
-
 def main():
     # read 2435 variants data with 22 barcodes
     train = pd.read_csv("MBO_dataset.csv")
@@ -84,21 +83,21 @@ def main():
     weights = np.log(weights)
     weights = weights / max(weights)
 
-    test =pd.read_csv("measured yeast all validation results.csv",nrows=32,skiprows=0)
+    test = pd.read_csv("measured yeast all validation results.csv", nrows=32, skiprows=0)
     test_sequences = list(test['sequence'])
     mean_fl_test = test['measured FL-yeast with mCore1 promoter']
     mean_fl_test = list(mean_fl_test)
-    variants=list(test["variant"])
+    variants = list(test["variant"])
 
     shorter_sequences = []
     shorter_sequences_fl = []
-    shorter_variant=[]
+    shorter_variant = []
     longer_sequences = []
     longer_sequences_fl = []
-    longer_variants=[]
+    longer_variants = []
 
-    # divide validation sequences and mean fl values into 2 groups of different length sequences
-    for seq, fl,variant in zip(test_sequences, mean_fl_test,variants):
+    # divide validation sequences, validation variants, and mean fl values into 2 groups of different length sequences
+    for seq, fl, variant in zip(test_sequences, mean_fl_test, variants):
         if len(seq) == 154:
             shorter_sequences.append(seq)
             shorter_sequences_fl.append(fl)
@@ -108,8 +107,10 @@ def main():
             longer_sequences_fl.append(fl)
             longer_variants.append(variant)
 
-    longer_sequences=[seq[27:213] for seq in longer_sequences] # get only 186bp sequence and exclude restrictions sites
-    shorter_sequences=[seq[27:128] for seq in shorter_sequences]  # get only 101bp sequence and exclude restrictions sites
+    # for longer sequences, get only 186bp sequence and exclude restrictions sites on both sides
+    longer_sequences = [seq[27:213] for seq in longer_sequences]
+    # for shorter sequences, get only 101bp sequence and exclude restrictions sites on both sides
+    shorter_sequences = [seq[27:128] for seq in shorter_sequences]  
 
     # turn sequences to one hot vectors
     longer_sequences_one_hot = np.array(list(map(longerOneHot, longer_sequences)))
@@ -117,7 +118,8 @@ def main():
 
     # initialize a convolutional network model
     cnn_model = Sequential()
-    cnn_model.add(Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(101, 4), use_bias=True))
+    cnn_model.add(
+        Conv1D(filters=1024, kernel_size=6, strides=1, activation='relu', input_shape=(101, 4), use_bias=True))
     cnn_model.add(GlobalMaxPooling1D())
     cnn_model.add(Dense(16, activation='relu'))
     cnn_model.add(Dense(1, activation='linear'))
@@ -152,7 +154,6 @@ def main():
     longer_model.add(Dense(1, activation='linear'))
     longer_model.compile(optimizer='adam', loss='mse')
 
-
     # initialize new models weights with the weights of the trained model
     for i, layer in enumerate(longer_model.layers):
         layer.set_weights(all_weights[i])
@@ -161,35 +162,40 @@ def main():
     longer_predictions = longer_model.predict(longer_sequences_one_hot)
     longer_predictions = [pred[0] for pred in longer_predictions]
 
+    all_predictions = shorter_predictions + longer_predictions
+    all_labels = shorter_sequences_fl + longer_sequences_fl
+    all_sequences = shorter_sequences + longer_sequences
+    all_variants = shorter_variant + longer_variants
+
     # calculate Pearson correlation on 32 variants
-    corr, p_value = pearsonr(shorter_predictions + longer_predictions, shorter_sequences_fl + longer_sequences_fl)
+    corr, p_value = pearsonr(all_predictions, all_labels)
 
-    print("Correlations on 32: ", corr, "P value: ", p_value)
+    print("Correlations on 32 validation variants: ", corr, "P value: ", p_value)
 
-    variant_32 = pd.DataFrame()
+    variant_32 = pd.DataFrame()  # create new dataframe
 
     # add sequence column with the short and long sequences
-    variant_32['sequence'] = shorter_sequences + longer_sequences
-    variant_32['variant']=shorter_variant+longer_variants
+    variant_32['sequence'] = all_sequences
+    variant_32['variant'] = all_variants
 
-    variant_gb_mapping=dict(zip(test['variant'],test["gb #"]))
+    variant_gb_mapping = dict(zip(test['variant'], test["gb #"]))
 
     # add gb num column according to mapping
     variant_32['gb #'] = variant_32['variant'].map(variant_gb_mapping)
 
-    measured_CHO_Hela=pd.read_csv("Hela-CHO-yeast data.csv")
+    measured_CHO_Hela = pd.read_csv("Hela-CHO-yeast data.csv")
 
     # merge our table with the Hela and CHO data table
-    variant_32=pd.merge(variant_32,measured_CHO_Hela, on='gb #', how='left')
+    variant_32 = pd.merge(variant_32, measured_CHO_Hela, on='gb #', how='left')
 
     # add mean fl and ml prediction columns to dataframe
-    variant_32['mean fl'] = shorter_sequences_fl + longer_sequences_fl
-    variant_32['ML prediction'] = shorter_predictions + longer_predictions
+    variant_32['mean fl'] = all_labels
+    variant_32['ML prediction'] = all_predictions
 
     # Save the DataFrame to a new CSV file
     variant_32.to_csv("32_sURS_model_results.csv", index=False)
 
-    # variant names of 8 uncorrelated variants between yeast and CHO cells
+    # variant name of 8 uncorrelated variants between yeast and CHO cells
     variants_to_drop = [
         "(3_30_28GA)x2*",
         "(3_30_28TC)x2*",
@@ -201,15 +207,20 @@ def main():
         "30_28TC_3*"
     ]
 
-    # Create a new DataFrame without the 8 uncorrelated dropped variants - with 24 correlated variants
+    # Create a new DataFrame without the 8 uncorrelated dropped variants and with 24 correlated variants
     correlated_24_variants = variant_32[~variant_32['variant'].isin(variants_to_drop)].copy()
 
-    print("Correlation between  model predictions and 24 correlated yeast-CHO variants: ",pearsonr(list(correlated_24_variants['measured FL-yeast with mCore1 promoter']), list(correlated_24_variants["ML prediction"])))
-    print("Correlation between CHO cells and model predictions: ", pearsonr(list(correlated_24_variants['CHO']),list(correlated_24_variants["ML prediction"])))
-    print("Correlation Hela cells and model predictions: ", pearsonr(list(correlated_24_variants['Hela (med cell #)']), list(correlated_24_variants["ML prediction"])))
+    print("Correlation between  model predictions and 24 correlated yeast-CHO variants: ",
+          pearsonr(list(correlated_24_variants['measured FL-yeast with mCore1 promoter']),
+                   list(correlated_24_variants["ML prediction"])))
+    print("Correlation between CHO cells and model predictions: ",
+          pearsonr(list(correlated_24_variants['CHO']), list(correlated_24_variants["ML prediction"])))
+    print("Correlation Hela cells and model predictions: ",
+          pearsonr(list(correlated_24_variants['Hela (med cell #)']), list(correlated_24_variants["ML prediction"])))
 
     # Save the new DataFrame to a new CSV file
     correlated_24_variants.to_csv("24_correlated_variants_sURS_model_results.csv", index=False)
+
 
 if __name__ == "__main__":
     main()
