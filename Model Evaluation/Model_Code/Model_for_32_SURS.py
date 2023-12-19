@@ -69,7 +69,7 @@ def longerOneHot(string):
 
 
 def main():
-    # read 2435 variants data with 22 barcodes
+    # read 2098 variants data with 22 barcodes and one mixed bases at least
     train = pd.read_csv("MBO_dataset.csv")
     train_sequences = list(train['101bp sequence'])  # read sequences
     train_sequences = np.array(list(map(oneHotDeg, train_sequences)))  # turn sequences to one hot vectors
