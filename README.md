@@ -105,7 +105,7 @@ Once finished, the desert sequence will appear on the MATLAB's command window bu
 
 This Python script enables the prediction of numerical values for given DNA sequences using pre-trained deep learning models. The models: ADM, AMM, and MBO, predict mean flourescence based on the dna sequence of synthetic upstream regulatory region. This readme provides information on how to use the script, prerequisites for execution, and details about the models and input data.
 
-** Prerequisites **
+**Prerequisites**
 
 Before using the script, ensure that the following dependencies are installed:
 
@@ -115,7 +115,7 @@ Before using the script, ensure that the following dependencies are installed:
 * numpy: A fundamental package for scientific computing with Python.<br>
 * scipy: A library for scientific computing and statistical routines.<br>
 
-** Usage **
+**Usage**
 
 Execute the script from the command line using the following syntax:<br>
 
@@ -125,7 +125,7 @@ Execute the script from the command line using the following syntax:<br>
 * output_file: The name of the file where predictions will be saved.<br>
 * input_file: The name of the file containing input DNA sequences.<br>
 
-** DNA Sequence Encoding **
+**DNA Sequence Encoding**
 
 The script employs a one-hot encoding scheme to represent DNA sequences. Each nucleotide is mapped to a binary vector. The mapping is as follows:
 
@@ -137,7 +137,7 @@ The script employs a one-hot encoding scheme to represent DNA sequences. Each nu
 * "M": [0.5, 0.5, 0, 0]<br>
 * "N": [0.25, 0.25, 0.25, 0.25]<br>
 
-** Loading Models **
+**Loading Models**
 
 The script loads pre-trained models based on the specified model_name. Currently available models are:
 
@@ -145,14 +145,14 @@ The script loads pre-trained models based on the specified model_name. Currently
 * AMM (All Motif Model)- Trained on 2,435 with 22 barcodes each <br>
 * MBO (Mixed Bases Only Model)- Trained on 2,098 sequence with 22 barcodes and at least one mixed base (K/M) <br>
 
-** Input File Format **
+**Input File Format**
 
 The input file should contain DNA sequences of synthetic upstream regulatory region, with each sequence on a new line. The sequence should be 101 bases in length for the models. The script reads these sequences from the input file.
 
-** Output **
+**Output**
 The script outputs predictions for each input sequence to the specified output_file. Each prediction is written to a new line.
 
-** Example **
+**Example**
 
 python predict.py ADM predictions.txt input_sequences.txt<br>
 
