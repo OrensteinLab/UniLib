@@ -99,72 +99,65 @@ It is important to save all files indluding functions and scripts in the same pa
 Once finished, the desert sequence will appear on the MATLAB's command window but also saved in a "Results" .txt file.
 
 
-# Using Transfer Learning - Pipeline
+# DNA Sequence Prediction Readme
 
-**Introduction**
+## Overview ### 
 
-We present a deep learning model that uses Transfer Learning on DNA expression data . The model is based on the CNN network we developed with the ommission of the 15-nt barcode, prediction of mean FL and the use of sample weights in training. The model is first trained on a dataset of ~6 million sequences from the DREAM challenge. Then it is trained on a dataset of all variants from an Oligo Library experiment (~67k sequences). And lastly, the model is trained on high precision data from the OL experiment (2.1K sequences).
+This Python script enables the prediction of numerical values for given DNA sequences using pre-trained deep learning models. The models: ADM, AMM, and MBO, predict mean flourescence based on the dna sequence of synthetic upstream regulatory region. This readme provides information on how to use the script, prerequisites for execution, and details about the models and input data.
 
 ## Prerequisites
 
-Before using the script, make sure you have the following libraries and tools installed:
+Before using the script, ensure that the following dependencies are installed:
 
-- [Python](https://www.python.org/)
-- [Pandas](https://pandas.pydata.org/)
-- [NumPy](https://numpy.org/)
-- [TensorFlow](https://www.tensorflow.org/)
-- [SciPy](https://www.scipy.org/)
-## Script Description
-
-The script performs the following main tasks:
-
-1. **Data Preprocessing**:
-   - Reads a CSV file containing regulatory DNA sequences and expression measurements (mean fluorescence levels).
-   - Converts the DNA sequences to one-hot encodings, enabling them to be used as input to the machine learning model.
-   - Augments train sets and test sets with reverse complement sequences for training and prediction.
-
-2. **Machine Learning Model**:
-   - Defines a convolutional neural network (CNN) model for the task.
-   - Compiles the model with appropriate loss and optimization functions.
-
-3. **Model Training**:
-   - Trains the CNN model on the preprocessed DNA sequences and their corresponding mean FL levels.
-   - Uses transfer learning approach - trains model on 3 different datasets - from the largest and lowest-quality dataset to the smallest and highest-quality dataset.
-
-4. **Ensemble Model**:
-   - Implements an ensemble method for model prediction. The script runs 100 models and averages their predictions to improve the accuracy and robustness of the model.
-
-5. **Prediction**:
-   - Uses the trained model to predict mean FL values for the validation sequences.
-   - Calculates predictions based on the average predictions for the original and reverse complement sequences, improving prediction accuracy.
-
-6. **Evaluation**:
-   - Calculates Pearson correlation coefficients between the model predictions and the true labels for the 2 validation sets.
-   - Evaluates model performance.
-
-7. **Data Export**:
-   - Saves the average predictions and true labels to CSV files for further analysis.
+*argparse: A module for parsing command-line arguments.<br>
+*pandas: A powerful data manipulation library.<br>
+*keras: A high-level neural networks API.<br>
+*numpy: A fundamental package for scientific computing with Python.<br>
+*scipy: A library for scientific computing and statistical routines.<br>
 
 ## Usage
 
-To use this script, follow these steps:
+Execute the script from the command line using the following syntax:<br>
 
-1. **Install Required Libraries**:
-   Ensure that you have installed all the required libraries and tools mentioned in the "Prerequisites" section.
+*python predict.py model_name output_file input_file<br>
 
-2. **Data Preparation**:
-   - Prepare your input data in CSV format, including DNA sequences and associated target values.
-   - Name your input CSV files accordingly, or modify the script to specify the correct file paths.
+*model_name: Specify the model to be used for predictions (ADM, AMM, or default MBO).<br>
+*output_file: The name of the file where predictions will be saved.<br>
+*input_file: The name of the file containing input DNA sequences.<br>
 
-3. **Configure the Script**:
-   - Adjust the script to match your dataset and experimental setup. Update the file paths and parameters as needed.
+## DNA Sequence Encoding
 
-4. **Run the Script**:
-   - Execute the script using a Python interpreter.
-   - The script will perform data preprocessing, model training, and evaluation.
+The script employs a one-hot encoding scheme to represent DNA sequences. Each nucleotide is mapped to a binary vector. The mapping is as follows:
 
-  
-  
-  
+*"A": [1, 0, 0, 0]<br>
+*"C": [0, 1, 0, 0]<br>
+*"G": [0, 0, 1, 0]<br>
+*"T": [0, 0, 0, 1]<br>
+*"K": [0, 0, 0.5, 0.5]<br>
+*"M": [0.5, 0.5, 0, 0]<br>
+*"N": [0.25, 0.25, 0.25, 0.25]<br>
+
+## Loading Models
+
+The script loads pre-trained models based on the specified model_name. Currently available models are:
+
+*ADM (All Data Model) - Trained on 20,000 sequences with the heighest number of read from the expreiment<br>
+*AMM (All Motif Model)- Trained on 2,435 with 22 barcodes each <br>
+*MBO (Mixed Bases Only Model)- Trained on 2,098 sequence with 22 barcodes and at least one mixed base (K/M) <br>
+
+## Input File Format
+
+The input file should contain DNA sequences of synthetic upstream regulatory region, with each sequence on a new line. The sequence should be 101 bases in length for the models. The script reads these sequences from the input file.
+
+## Output
+The script outputs predictions for each input sequence to the specified output_file. Each prediction is written to a new line.
+
+## Example
+
+python predict.py ADM predictions.txt input_sequences.txt<br>
+
+This command runs the script using the ADM model, with input sequences from the file input_sequences.txt, and saves the predictions to the file predictions.txt.
+
+
 
   
