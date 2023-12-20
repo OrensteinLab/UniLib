@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-# Sample data (replace with your actual data)
+# data
 variants_300 = [0.11, 0.67, 0.64, 0.61]  # Replace with actual values
 variants_11 = [0.65, -0.18, 0.45, 0.60]  # Replace with actual values
 error_11 = [0.066, 0.144, 0.087, 0.075]  # Replace with actual error values
