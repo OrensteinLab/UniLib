@@ -127,7 +127,7 @@ def main():
 
     # run 100 models as part of the random ensemble initialization technique
     for i in range(100):
-        # Use the function to train pretrained model on 2135 sequences with 22 barcodes and make predictions
+        # Use the function to train model with random initialization on 2135 sequences with 22 barcodes and make predictions
         predictions1, predictions2 = train_predict(train_sequences, labels_train, weights, test_sequences1,
                                                    test_sequences2)
         all_predictions1.append(predictions1)
