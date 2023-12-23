@@ -66,6 +66,8 @@ def main():
     # Sort the DataFrame by the 'total_reads' column in descending order
     variants_22_barcodes_sorted = variant_22_barcodes_df.sort_values(by='total_reads', ascending=False)
 
+    variants_22_barcodes_sorted.to_csv("AMM_dataset.csv")
+
     # Select the top 300 rows with most reads as test set
     top_300_df = variants_22_barcodes_sorted.head(300)
 
