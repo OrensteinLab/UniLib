@@ -16,23 +16,7 @@ This repository contains 4 different models:
 
   * meanFL_sample_weights - similar to "meanFL" model but is takes into consideration the amount of total reads each sequence has 
 
-**Getting started**
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-**Prerequisites**
-
-  * pandas
-  
-  * numpy
-  
-  * tensorflow
-  
-  * keras
-  
-  * scipy
-  
-  * sklearn
   
 # Desert Sequence Generator
 
@@ -64,12 +48,12 @@ It is important to save all files indluding functions and scripts in the same pa
 Once finished, the desert sequence will appear on the MATLAB's command window but also saved in a "Results" .txt file.
 
 
-# DNA Sequence Prediction Readme
+# DNA Sequence Prediction
 
 ## Overview ##
 
 
-This Python script enables the prediction of numerical gene expression values for given DNA sequences using pre-trained deep learning models. The models: ADM, AMM, and MBO, predict mean flourescence based on the dna sequence of synthetic upstream regulatory region. This readme provides information on how to use the script, prerequisites for execution, and details about the models and input data.
+This Python script enables the prediction of  gene expression values for given DNA sequences using pre-trained deep learning models. The models: ADM, AMM, and MBO, predict mean flourescence based on the dna sequence of synthetic upstream regulatory region. This readme provides information on how to use the script, prerequisites for execution, and details about the models and input data.
 
 **Prerequisites**
 
@@ -81,9 +65,10 @@ Before using the script, ensure that the following dependencies are installed:
 * keras: A high-level neural networks API.<br>
 * numpy: A fundamental package for scientific computing with Python.<br>
 * scipy: A library for scientific computing and statistical routines.<br>
+<br>
 
 **Usage**
-
+<br>
 
 Execute the script from the command line using the following syntax:<br>
 
@@ -96,9 +81,9 @@ python predict.py model_name output_file input_file
 * model_name: Specify the model to be used for predictions (ADM, AMM, or default MBO).<br>
 * output_file: The name of the file where predictions will be saved.<br>
 * input_file: The name of the file containing input DNA sequences.<br>
-
+<br>
 **DNA Sequence Encoding**
-
+<br>
 
 The script employs a one-hot encoding scheme to represent DNA sequences. Each nucleotide is mapped to a binary vector. The mapping is as follows:
 <br>
@@ -110,10 +95,10 @@ The script employs a one-hot encoding scheme to represent DNA sequences. Each nu
 * "K": [0, 0, 0.5, 0.5]<br>
 * "M": [0.5, 0.5, 0, 0]<br>
 * "N": [0.25, 0.25, 0.25, 0.25]<br>
-
+<br>
 **Loading Models**
 
-
+<br>
 The script loads pre-trained models based on the specified model_name. Currently available models are:
 
 * ADM (All Data Model) - Trained on 20,000 sequences with the highest number of reads from the expreiment<br>
@@ -122,16 +107,21 @@ The script loads pre-trained models based on the specified model_name. Currently
 <br>
 
 **Input File Format**
+<br>
 
 
 The input file should contain DNA sequences of synthetic upstream regulatory region, with each sequence on a new line. The sequence should be 101 bases in length for the models. The script reads these sequences from the input file.
-
+<br>
 **Output**
-
+<br>
 
 The script outputs predictions for each input sequence to the specified output_file. Each prediction is written to a new line.
 
+<br>
+
 **Example**
+
+<br>
 
 
 ```
