@@ -1,3 +1,11 @@
+## UNILIB ##
+
+# Introduction
+
+In the UNILIB study, we used data from a Massive Parallel Reported Assay (MPRA) in that generated expression data for Sythetic Upstream Regulatory Regions (sURS) containing various TFFBS in yeast.The goal of the study was to develop an algorithm of sURS design for boosting gene expression in yeast and to build machine learning models that would be able to learn the variant data from the experiment and make predictions on new sURS sequences
+This repository includes all of the scripts and trained ML models used in the UNILIB study. In addition, the repository includes a scripts for making predictions on new DNA sequence files using a chosen ML model and to train an ML on a DNA sequence file
+
+
 # Setup environment
 
 ```
