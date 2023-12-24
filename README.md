@@ -4,7 +4,7 @@
 
 In the UNILIB study, we leveraged data obtained from a Massive Parallel Reported Assay (MPRA) that systematically measured gene expression for an oligo library comprising approximately 150,000 Synthetic Upstream Regulatory Sequences (sURS) in yeast. This repository encompasses a comprehensive suite of scripts utilized for machine learning and analysis throughout the study. Included are the various datasets used in our investigation, as well as the trained machine learning models.
 
-Furthermore, the repository provides a script facilitating predictions on new DNA sequence files using a user-selected machine learning model from those employed in the study. Additionally, an accompanying script is available for training the machine learning model on a DNA sequence file. These resources collectively empower users to apply and extend the methodology established in our study, fostering reproducibility and further exploration in the field.
+Furthermore, the repository provides a script facilitating predictions on new DNA sequence files using a user-selected machine learning model from those employed in the study. Additionally, an accompanying script is available for training the machine learning model on a DNA sequence file.
 
 # Setup environment
 
