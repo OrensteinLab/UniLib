@@ -87,7 +87,11 @@ Before using the script, ensure that the following dependencies are installed:
 
 Execute the script from the command line using the following syntax:<br>
 
-```python predict.py model_name output_file input_file```<br>
+```
+
+python predict.py model_name output_file input_file
+
+```<br>
 
 * model_name: Specify the model to be used for predictions (ADM, AMM, or default MBO).<br>
 * output_file: The name of the file where predictions will be saved.<br>
@@ -97,6 +101,7 @@ Execute the script from the command line using the following syntax:<br>
 
 
 The script employs a one-hot encoding scheme to represent DNA sequences. Each nucleotide is mapped to a binary vector. The mapping is as follows:
+<br>
 
 * "A": [1, 0, 0, 0]<br>
 * "C": [0, 1, 0, 0]<br>
@@ -114,6 +119,7 @@ The script loads pre-trained models based on the specified model_name. Currently
 * ADM (All Data Model) - Trained on 20,000 sequences with the highest number of reads from the expreiment<br>
 * AMM (All Motif Model)- Trained on 2,435 sequences with 22 barcodes each <br>
 * MBO (Mixed Bases Only Model)- Trained on 2,098 sequences with 22 barcodes and at least one mixed base (K/M) <br>
+<br>
 
 **Input File Format**
 
@@ -128,7 +134,11 @@ The script outputs predictions for each input sequence to the specified output_f
 **Example**
 
 
-```python predict.py ADM predictions.txt input_sequences.txt```<br>
+```
+
+python predict.py ADM predictions.txt input_sequences.txt
+
+```<br>
 
 This command runs the script using the ADM model, with input sequences from the file input_sequences.txt, and saves the predictions to the file predictions.txt.
 
