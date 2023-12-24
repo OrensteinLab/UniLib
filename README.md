@@ -87,9 +87,7 @@ Before using the script, ensure that the following dependencies are installed:
 
 Execute the script from the command line using the following syntax:<br>
 
-```
-
-python predict.py model_name output_file input_file```<br>
+`<br>python predict.py model_name output_file input_file`<br>
 
 * model_name: Specify the model to be used for predictions (ADM, AMM, or default MBO).<br>
 * output_file: The name of the file where predictions will be saved.<br>
