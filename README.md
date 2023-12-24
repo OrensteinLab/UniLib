@@ -122,7 +122,9 @@ Before using the script, ensure that the following dependencies are installed:
 
 Execute the script from the command line using the following syntax:<br>
 
-'''python predict.py model_name output_file input_file'''<br>
+'''
+python predict.py model_name output_file input_file
+'''<br>
 
 * model_name: Specify the model to be used for predictions (ADM, AMM, or default MBO).<br>
 * output_file: The name of the file where predictions will be saved.<br>
@@ -163,7 +165,9 @@ The script outputs predictions for each input sequence to the specified output_f
 **Example**
 
 
-'''python predict.py ADM predictions.txt input_sequences.txt'''<br>
+'''
+python predict.py ADM predictions.txt input_sequences.txt
+'''<br>
 
 This command runs the script using the ADM model, with input sequences from the file input_sequences.txt, and saves the predictions to the file predictions.txt.
 
