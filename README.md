@@ -81,9 +81,10 @@ python predict.py model_name output_file input_file
 * model_name: Specify the model to be used for predictions (ADM, AMM, or default MBO).<br>
 * output_file: The name of the file where predictions will be saved.<br>
 * input_file: The name of the file containing input DNA sequences.<br>
-<br>
+
+
 **DNA Sequence Encoding**
-<br>
+  
 
 The script employs a one-hot encoding scheme to represent DNA sequences. Each nucleotide is mapped to a binary vector. The mapping is as follows:
 <br>
@@ -95,29 +96,26 @@ The script employs a one-hot encoding scheme to represent DNA sequences. Each nu
 * "K": [0, 0, 0.5, 0.5]<br>
 * "M": [0.5, 0.5, 0, 0]<br>
 * "N": [0.25, 0.25, 0.25, 0.25]<br>
-<br>
+
+
 **Loading Models**
 
-<br>
 The script loads pre-trained models based on the specified model_name. Currently available models are:
 
 * ADM (All Data Model) - Trained on 20,000 sequences with the highest number of reads from the expreiment<br>
 * AMM (All Motif Model)- Trained on 2,435 sequences with 22 barcodes each <br>
 * MBO (Mixed Bases Only Model)- Trained on 2,098 sequences with 22 barcodes and at least one mixed base (K/M) <br>
-<br>
+
 
 **Input File Format**
-<br>
 
 
 The input file should contain DNA sequences of synthetic upstream regulatory region, with each sequence on a new line. The sequence should be 101 bases in length for the models. The script reads these sequences from the input file.
-<br>
+
+
 **Output**
-<br>
 
 The script outputs predictions for each input sequence to the specified output_file. Each prediction is written to a new line.
-
-<br>
 
 **Example**
 
