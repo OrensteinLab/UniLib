@@ -34,41 +34,6 @@ These instructions will get you a copy of the project up and running on your loc
   
   * sklearn
   
-  **How it works**
-  
-  **Training the model:**
-  
-  * In order to train the model on the same data:
-  
-  first you need to choose a model from the 8 models we compared then you simply have to replace this line:
-  
-  ![image](https://user-images.githubusercontent.com/101515707/177045823-2edb66a4-3a76-48df-b430-8dbaf21a93c7.png)
-    
-    with a line that loads the data to your machine.
-    
-  * To train the model on another set of data you need 
-  
-  A) To choose a model and make sure your data contains the relevant features e.g bin readings or meanFL
-  
-  B) Replace this line:
-  
-  ![image](https://user-images.githubusercontent.com/101515707/177045823-2edb66a4-3a76-48df-b430-8dbaf21a93c7.png)
-  
-  with a line that loads your own data.
-  
-  C) Make sure the labels are loaded correctly into the following veriables:
-  
-  ![image](https://user-images.githubusercontent.com/101515707/177046169-451b154b-f47a-45c6-b512-eb612a97f395.png)
-  
-  **Getting predictions:**
-  
-  A) Transform the sequences into a one hot matrix representation of the string using the oneHotDeg function:
-  ![image](https://user-images.githubusercontent.com/101515707/177046458-7cfd1ac1-04b9-4642-8ad3-d47767c9e2a4.png)
-
-  B) Use model.predict(your_matrix_goes_here)
-  
-
-  
 # Desert Sequence Generator
 
 **Introduction** 
