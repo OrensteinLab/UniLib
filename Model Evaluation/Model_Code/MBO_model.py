@@ -7,6 +7,8 @@ import tensorflow as tf
 import random
 import os
 
+os.chdir("../Datasets/")
+
 seed_value = 42
 
 os.environ['PYTHONHASHSEED'] = str(seed_value)
