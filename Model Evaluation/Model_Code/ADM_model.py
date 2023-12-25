@@ -1,9 +1,9 @@
 import os
-os.environ['TF_DETERMINISTIC_OPS'] = '1'
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
 import pandas as pd
 from scipy.stats.stats import pearsonr
-num_of_dp = 10000
+
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 # Set random seeds for reproducibility
 seed_value=42
@@ -21,6 +21,9 @@ np.random.seed(seed_value)
 # 4. Set the `tensorflow` pseudo-random generator at a fixed value
 import tensorflow as tf
 tf.random.set_seed(seed_value)
+
+os.chdir("../Datasets/")
+
 
 def oneHotDeg(string):
     """
