@@ -7,6 +7,8 @@ import tensorflow as tf
 import random
 import os
 
+os.chdir("../Datasets/")
+
 seed_value = 42
 
 os.environ['PYTHONHASHSEED'] = str(seed_value)
@@ -83,7 +85,7 @@ def main():
     weights = np.log(weights)
     weights = weights / max(weights)
 
-    test = pd.read_csv("measured yeast all validation results.csv", nrows=32, skiprows=0)
+    test = pd.read_csv("yeast _32_validation_variants.csv", nrows=32, skiprows=0)
     test_sequences = list(test['sequence'])
     mean_fl_test = test['measured FL-yeast with mCore1 promoter']
     mean_fl_test = list(mean_fl_test)
