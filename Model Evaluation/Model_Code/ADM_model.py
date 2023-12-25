@@ -2,13 +2,15 @@ import os
 import pandas as pd
 from scipy.stats.stats import pearsonr
 
-os.environ['TF_DETERMINISTIC_OPS'] = '1'
+os.chdir("../Datasets/")
+
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 # Set random seeds for reproducibility
 seed_value=42
 
 os.environ['PYTHONHASHSEED']=str(seed_value)
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
 
 # 2. Set the `python` built-in pseudo-random generator at a fixed value
 import random
@@ -21,8 +23,6 @@ np.random.seed(seed_value)
 # 4. Set the `tensorflow` pseudo-random generator at a fixed value
 import tensorflow as tf
 tf.random.set_seed(seed_value)
-
-os.chdir("../Datasets/")
 
 
 def oneHotDeg(string):
