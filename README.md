@@ -65,20 +65,7 @@ Once finished, the desert sequence will appear on the MATLAB's command window bu
 
 This Python script enables the prediction of  gene expression values for given DNA sequences using pre-trained deep learning models. The models: ADM, AMM, and MBO, predict mean flourescence based on the dna sequence of synthetic upstream regulatory region. This readme provides information on how to use the script, prerequisites for execution, and details about the models and input data.
 
-**Prerequisites**
-
-
-Before using the script, ensure that the following dependencies are installed:
-
-* argparse: A module for parsing command-line arguments.<br>
-* pandas: A powerful data manipulation library.<br>
-* keras: A high-level neural networks API.<br>
-* numpy: A fundamental package for scientific computing with Python.<br>
-* scipy: A library for scientific computing and statistical routines.<br>
-<br>
-
 **Usage**
-<br>
 
 Execute the script from the command line using the following syntax:<br>
 
@@ -139,6 +126,58 @@ python predict.py ADM predictions.txt input_sequences.txt
 ```
 
 This command runs the script using the ADM model, with input sequences from the file input_sequences.txt, and saves the predictions to the file predictions.txt.
+
+# Train model
+
+## Overview ##
+
+This Python script enables user to train the general ML model used in the UNILIB study on new DNA Sequence Expression data. The user provides and input file with the training sequences and expression labels. The trained model is saved as output
+
+
+**Usage**
+
+
+Execute the script from the command line using the following syntax:<br>
+
+```
+
+python train.py data_file model_name
+
+```
+
+* data_file: The name of the file containing DNA sequences and their respective expression data.<br>
+* model_name: The name that the new trained model would be saved with
+
+
+**Model Characteristics**
+
+The model is based on a convolutional network (CNN) with the following hyperparameters:
+
+* 1024 kernels with a filter size 6 and a relu activation function.
+* A global max pooling layer
+* A dense layer with 16 neurons and relu activation
+* A final dense layer with 1 neuron and linear activation.
+* The loss function in MSE, the batch size is 32 and the number of training epochs is 3
+
+
+**Input File Format**
+
+The input file should contain DNA sequences of synthetic upstream regulatory region (sURS), and their respective mean FL values. Each sequence and its expression value should be separated by a tab and should be on a separate  line. The sequence should be 101 bases in length for the model. 
+
+**Output**
+
+The output of the program is the trained model saved in H5 file format
+
+**Example**
+
+
+```
+
+python train.py data.txt my_model
+
+```
+
+This command runs the script with train sequences from the file data.txt, and saves the trained model as my_model
 
 
 

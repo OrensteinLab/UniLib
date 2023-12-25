@@ -85,6 +85,7 @@ def main():
     weights = np.log(weights)
     weights = weights / max(weights)
 
+    # read data for 32 validation variants
     test = pd.read_csv("yeast _32_validation_variants.csv", nrows=32, skiprows=0)
     test_sequences = list(test['sequence'])
     mean_fl_test = test['measured FL-yeast with mCore1 promoter']
@@ -99,11 +100,14 @@ def main():
     longer_variants = []
 
     # divide validation sequences, validation variants, and mean fl values into 2 groups of different length sequences
+    # There include short sURS with 3 motifs and longer sURS with 6 motifs
     for seq, fl, variant in zip(test_sequences, mean_fl_test, variants):
+        # for shorter sequences with length 154
         if len(seq) == 154:
             shorter_sequences.append(seq)
             shorter_sequences_fl.append(fl)
             shorter_variant.append(variant)
+        # for longer sequences with length 239
         else:
             longer_sequences.append(seq)
             longer_sequences_fl.append(fl)
@@ -137,6 +141,7 @@ def main():
     # Fit the model on shuffled data
     cnn_model.fit(sequences_shuffled, labels_shuffled, epochs=3, batch_size=batch_size, verbose=1,
                   sample_weight=weights_shuffled, shuffle=True)
+
     # predict on shorter 101bp sequences
     shorter_predictions = cnn_model.predict(shorter_sequences_one_hot)
     shorter_predictions = [pred[0] for pred in shorter_predictions]
@@ -160,10 +165,11 @@ def main():
     for i, layer in enumerate(longer_model.layers):
         layer.set_weights(all_weights[i])
 
-    # use models to make predictions on different lengths sequences
+    # use models to make predictions on longer 186bp sequence
     longer_predictions = longer_model.predict(longer_sequences_one_hot)
     longer_predictions = [pred[0] for pred in longer_predictions]
 
+    # combine short and long sequences,labels and predictions
     all_predictions = shorter_predictions + longer_predictions
     all_labels = shorter_sequences_fl + longer_sequences_fl
     all_sequences = shorter_sequences + longer_sequences
@@ -174,17 +180,19 @@ def main():
 
     print("Correlations on 32 validation variants: ", corr, "P value: ", p_value)
 
-    variant_32 = pd.DataFrame()  # create new dataframe
+    variant_32 = pd.DataFrame()
 
-    # add sequence column with the short and long sequences
+    # add sequences and variants columns
     variant_32['sequence'] = all_sequences
     variant_32['variant'] = all_variants
 
+    # map variants to their #GB number
     variant_gb_mapping = dict(zip(test['variant'], test["gb #"]))
 
     # add gb num column according to mapping
     variant_32['gb #'] = variant_32['variant'].map(variant_gb_mapping)
 
+    # read CHO and Hela cell data from csv file
     measured_CHO_Hela = pd.read_csv("Hela-CHO-yeast data.csv")
 
     # merge our table with the Hela and CHO data table

@@ -60,7 +60,7 @@ def main():
 
     all_variants.to_csv("all_aggregated_variants.csv")
 
-    # We filter only variants with 22 barcodes
+    # Filter only variants with 22 barcodes
     variant_22_barcodes_df = all_variants[all_variants['variant'].isin(variant_numbers_22_barcodes)]
 
     # Sort the DataFrame by the 'total_reads' column in descending order
@@ -71,6 +71,7 @@ def main():
     # Select the top 300 rows with most reads as test set
     top_300_df = variants_22_barcodes_sorted.head(300)
 
+    # filter variants with 22 barcodes and at least one K/M base
     mixed_base_df = variant_22_barcodes_df[(variant_22_barcodes_df['101bp sequence'].str.contains("K")) | (
         variant_22_barcodes_df['101bp sequence'].str.contains("M"))]
 

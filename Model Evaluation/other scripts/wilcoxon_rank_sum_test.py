@@ -21,7 +21,7 @@ def main():
     # dictionary which will contain mean fl values for all variants containing each motif
     motif_variants = {}
 
-    # find all variants containing each motif
+    # find the group of all variants containing each motif
     for motif in motifs:
         # use mask to find variant indexes containing the motifs
         contains_motif_mask = all_data['101bp sequence'].str.contains(motif)
@@ -36,16 +36,13 @@ def main():
     contains_desert = all_data[mask_desert]['Mean Fl']
     motif_variants['desert motif'] = contains_desert
 
-    # sort motifs by median of mean FL
+    # sort motifs by median of mean FL in reverse order
     motifs = sorted(motifs, key=lambda x: motif_variants[x].median(axis=0),
-                    reverse=True)  # sort motifs by median mean fl in reverse order
+                    reverse=True)
 
     p_values = []
 
-    for i in range(len(motifs)):
-        motif = motifs[i]
-        median = motif_variants[motif].median()
-        print(motif, median)
+    for i, motif in enumerate(motifs):
         contain_motif = motif_variants[motif] # all variants containing motif
         other_motifs = all_data
         # remove all motifs in -5 or plus 5 in the ranking by median from the original motif
@@ -54,24 +51,23 @@ def main():
         statistic, p_value = stats.mannwhitneyu(contain_motif, other_motifs['Mean Fl']) # perform Wilcoxon rank sum test
         p_values.append(p_value)
 
-    p_value_df = pd.DataFrame()
+    p_values_df = pd.DataFrame()
 
-    p_value_df["motif"]=motifs
+    p_values_df["motif"] = motifs
 
-    p_value_df["Wilcoxon_rank_sum_P_value"] = p_values
-
-    p_values_df = pd.DataFrame(p_values, index=motifs)
+    p_values_df["Wilcoxon_rank_sum_P_value"] = p_values
 
     # Perform Benjamini-Hochberg correction
-    rejected, corrected_p_values, _, _ = multitest.multipletests(p_values_df.values.flatten(), alpha=0.1,
+    rejected, corrected_p_values, _, _ = multitest.multipletests(p_values, alpha=0.1,
                                                                  method='fdr_bh')
     # Add the rejection column to the DataFrame
-    p_value_df['Null hypothesis rejected'] = rejected
+    p_values_df['Null hypothesis rejected'] = rejected
 
-    p_value_df['Benjamini Hochberg corrected p value'] = corrected_p_values
+    # add column for corrected p values
+    p_values_df['Benjamini Hochberg corrected p value'] = corrected_p_values
 
     # Save the DataFrame to a CSV file
-    p_value_df.to_csv('Wilcoxon_rank_sum_ranked_motifs.csv', index_label='Motif')
+    p_values_df.to_csv('Wilcoxon_rank_sum_motifs.csv', index_label='Motif')
 
 
 if __name__ == '__main__':
