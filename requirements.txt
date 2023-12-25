@@ -1,0 +1,7 @@
+numpy==1.26.2
+matplotlib==3.6.3
+scipy==1.10.1
+pandas==1.5.2
+tensorflow==2.13.0
+keras==2.13.1
+statsmodels==0.14.0
