@@ -61,6 +61,7 @@ def main():
     # normalize labels
     max_label = max(labels)
     labels = [label/max_label for label in labels]
+    labels=np.array(labels)
 
     # turn sequences to One Hot vectors
     sequences = np.array(list(map(oneHotDeg, sequences)))
@@ -77,7 +78,7 @@ def main():
     # fit model on training data
     cnn_model.fit(sequences, labels, epochs=3, batch_size=32, verbose=1, shuffle=True)
     # save trained model
-    cnn_model.save(str(model_name)+"h5")
+    cnn_model.save(str(model_name)+".h5")
 
 
 if __name__ == "__main__":
