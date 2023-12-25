@@ -2,20 +2,28 @@
 
 # Introduction
 
-In the UNILIB study, we leveraged data obtained from a Massive Parallel Reported Assay (MPRA) that systematically measured gene expression for an oligo library comprising approximately 150,000 Synthetic Upstream Regulatory Sequences (sURS) in yeast. This repository encompasses a comprehensive suite of scripts utilized for machine learning and analysis throughout the study. Included are the various datasets used in our investigation, as well as the trained machine learning models.
+In the UNILIB study, we leveraged data obtained from a Massive Parallel Reported Assay (MPRA) that systematically measured gene expression for an oligo library comprising approximately 150,000 Synthetic Upstream Regulatory Sequences (sURS) in yeast. This repository includes the collection of scripts utilized for machine learning and analysis throughout the study. It also includes the various datasets used in our investigation, as well as the trained machine learning models.
 
 Furthermore, the repository provides a script facilitating predictions on new DNA sequence files using a user-selected machine learning model from those employed in the study. Additionally, an accompanying script is available for training the machine learning model on a DNA sequence file.
 
 # Setup environment
 
 ```
-# create virtual conda environment
-conda create -n Unilib python=3.9
+# Create a virtual conda environment named "Unilib" with Python 3.9.16
+conda create -n Unilib python=3.9.16
+
+# Activate the newly created virtual environment
 conda activate Unilib
 
+# Clone the UniLib project from the GitHub repository
 git clone https://github.com/OrensteinLab/UniLib.git
 
+# Change into the UniLib directory
+cd UniLib
+
+# Install the required dependencies listed in the requirements.txt file using pip
 python -m pip install -r requirements.txt
+
 
 ```
 
