@@ -3,7 +3,12 @@ import pandas as pd
 from scipy.stats.stats import pearsonr
 from itertools import product
 from keras.losses import Loss
-num_of_dp = 10000
+import zipfile
+import numpy as np
+import random
+import tensorflow as tf
+
+os.chdir("../Datasets/")
 
 # Set random seeds for reproducibility
 seed_value=42
@@ -12,19 +17,21 @@ os.environ['PYTHONHASHSEED']=str(seed_value)
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
-# 2. Set the `python` built-in pseudo-random generator at a fixed value
-import random
 random.seed(seed_value)
-
-# 3. Set the `numpy` pseudo-random generator at a fixed value
-import numpy as np
 np.random.seed(seed_value)
-
-# 4. Set the `tensorflow` pseudo-random generator at a fixed value
-import tensorflow as tf
 tf.random.set_seed(seed_value)
 
+def extract_zip(zip_path):
+    # Specify the destination directory (current directory in this case)
+    current_directory = os.getcwd()
 
+    # Open the zip file
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        # Extract all contents to the destination directory
+        zip_ref.extractall(current_directory)
+
+
+num_of_dp = 10000
 
 def oneHotDeg(string):
     """
@@ -254,6 +261,9 @@ def run_model(combination,all_data,train_data, test_data):
 
 
 def main():
+
+    extract_zip('unilib_variant_bindingsites_KM_mean_0_sorted.zip')
+
     # read csv file with 140k sequences and expression data
     all_data = pd.read_csv("unilib_variant_bindingsites_KM_mean_0_sorted.csv")
 
@@ -267,7 +277,6 @@ def main():
     train_data = train_data.sort_values(by='readtot', ascending=False)
 
     train_data = train_data.reset_index(drop=True)
-
 
     options = [True, False]
     combinations = list(product(options, repeat=3))  # create 8 combinations of 3 attributes

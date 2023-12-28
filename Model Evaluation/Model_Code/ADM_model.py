@@ -4,6 +4,7 @@ from scipy.stats.stats import pearsonr
 import random
 import numpy as np
 import tensorflow as tf
+import zipfile
 
 os.chdir("../Datasets/")
 
@@ -18,6 +19,17 @@ os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 os.environ['PYTHONHASHSEED'] = str(seed_value)
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
+
+
+def extract_zip(zip_path):
+    # Specify the destination directory (current directory in this case)
+    current_directory = os.getcwd()
+
+    # Open the zip file
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        # Extract all contents to the destination directory
+        zip_ref.extractall(current_directory)
+
 
 
 def oneHotDeg(string):
@@ -48,6 +60,8 @@ def oneHotDeg(string):
 
     return one_hot_matrix
 
+
+extract_zip('unilib_variant_bindingsites_KM_mean_0_sorted.zip')
 
 # read 11 validation variants
 test2 = pd.read_csv("11_validation_variants.csv")

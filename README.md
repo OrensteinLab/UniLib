@@ -1,12 +1,13 @@
-# UNILIB
+# UniLib - A universal system for boosting gene expression in Eukaryotic cell-lines
 
 # Introduction
 
-In the UNILIB study, we leveraged data obtained from a Massive Parallel Reported Assay (MPRA) that systematically measured gene expression for an oligo library comprising approximately 150,000 Synthetic Upstream Regulatory Sequences (sURS) in yeast. This repository includes the collection of scripts utilized for machine learning and analysis throughout the study. It also includes the various datasets used in our investigation, as well as the trained machine learning models.
+In the UNILIB study, we leveraged data obtained from a Massive Parallel Reported Assay (MPRA) that systematically measured gene expression for an oligo library comprising approximately 150,000 Synthetic Upstream Regulatory Sequences (sURS) in yeast. This repository includes the collection of scripts used for machine learning and data analysis throughout the study. It also includes the various datasets used in our investigation, as well as the trained machine learning models.
 
-Furthermore, the repository provides a script facilitating predictions on new DNA sequence files using a user-selected machine learning model from those employed in the study. Additionally, an accompanying script is available for training the machine learning model on a DNA sequence file.
+Furthermore, the repository provides a script enabling predictions on new DNA sequence files using a user-selected machine learning model from the models used in the study. An additional script is available for training the CNN model used in the study on new DNA sequence and expression data.
 
 # Setup environment
+
 
 ```
 # Create a virtual conda environment named "Unilib" with Python 3.9.16
@@ -145,7 +146,7 @@ python train.py data_file model_name
 
 ```
 
-* data_file: The name of the file containing DNA sequences and their respective expression data.<br>
+* data_file: The name of the file containing DNA sequences and their mean FL values.<br>
 * model_name: The name that the new trained model would be saved with
 
 
@@ -157,12 +158,13 @@ The model is based on a convolutional network (CNN) with the following hyperpara
 * A global max pooling layer
 * A dense layer with 16 neurons and relu activation
 * A final dense layer with 1 neuron and linear activation.
-* The loss function in MSE, the batch size is 32 and the number of training epochs is 3
+* The model use the MSE loss function and the ADAM optimizer.
+* The batch size is 32 and the number of training epochs is 5.
 
 
 **Input File Format**
 
-The input file should contain DNA sequences of synthetic upstream regulatory region (sURS), and their respective mean FL values. Each sequence and its expression value should be separated by a tab and should be on a separate  line. The sequence should be 101 bases in length for the model. 
+The input file should contain DNA sequences of synthetic upstream regulatory region (sURS), and their mean FL values. Each sequence and its mean Fl value should be separated by a tab and should be on a separate line. The sequence should be 101 bases in length for the model. 
 
 **Output**
 
@@ -177,7 +179,7 @@ python train.py data.txt my_model
 
 ```
 
-This command runs the script with train sequences from the file data.txt, and saves the trained model as my_model
+This command runs the script with train sequences from the file data.txt, and saves the trained model as my_model.h5
 
 
 

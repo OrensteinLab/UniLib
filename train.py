@@ -43,7 +43,7 @@ def main():
 
     # Extract input arguments
     data_file = args.data_file
-    model_name=args.model_name
+    model_name = args.model_name
 
     sequences = []
     labels = []
@@ -76,9 +76,11 @@ def main():
     cnn_model.compile(optimizer='adam', loss='mse')
 
     # fit model on training data
-    cnn_model.fit(sequences, labels, epochs=3, batch_size=32, verbose=1, shuffle=True)
+    cnn_model.fit(sequences, labels, epochs=5, batch_size=32, verbose=1, shuffle=True)
     # save trained model
     cnn_model.save(str(model_name)+".h5")
+
+    print("Model saved successfully as: " + str(model_name) + ".h5")
 
 
 if __name__ == "__main__":
