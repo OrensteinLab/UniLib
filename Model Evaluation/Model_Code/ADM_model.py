@@ -104,7 +104,7 @@ pred_mean_fl2 = model.predict(np.array(test_sequences2))
 
 # calculate pearson correlation on 11 sURS
 corr11 = pearsonr(mean_fl_test2, pred_mean_fl2.reshape(len(pred_mean_fl2)))[0]
-print("Corr11: ", corr11)
+print("Correlation on 11 variants: ", corr11)
 
 # add predictions column to dataframe
 test2["ADM predictions"] = pred_mean_fl2.reshape(len(pred_mean_fl2))
@@ -158,7 +158,7 @@ pred_mean_fl1 = model.predict(np.array(test_sequences1))
 
 # calculate pearson correlation on 300 test variants
 corr300 = pearsonr(mean_fl_test1, pred_mean_fl1.reshape(len(pred_mean_fl1)))[0]
-print("Corr300: ", corr300)
+print("Correlation on 300 variants: ", corr300)
 
 # add predictions column to test dataframe
 test1["ADM predictions"] = pred_mean_fl1.reshape(len(pred_mean_fl1))
