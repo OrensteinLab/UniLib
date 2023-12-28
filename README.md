@@ -1,5 +1,12 @@
 # UniLib - A universal system for boosting gene expression in Eukaryotic cell-lines
 
+# Table of Contents
+1. [Introduction](#introduction)
+2. [Setup environment](#setup-environment)
+3. [Desert Sequence Generator](#desert-sequence-generator)
+4. [DNA Sequence Prediction](#dna-sequence-prediction)
+5. [Train model](#train-model)
+
 # Introduction
 
 In the UNILIB study, we leveraged data obtained from a Massive Parallel Reported Assay (MPRA) that systematically measured gene expression for an oligo library comprising approximately 150,000 Synthetic Upstream Regulatory Sequences (sURS) in yeast. This repository includes the collection of scripts used for machine learning and data analysis throughout the study. It also includes the various datasets used in our investigation, as well as the trained machine learning models.

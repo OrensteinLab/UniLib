@@ -229,7 +229,7 @@ def main():
           pearsonr(list(correlated_24_variants['Hela (med cell #)']), list(correlated_24_variants["ML prediction"])))
 
     # Save the new DataFrame to a new CSV file
-    correlated_24_variants.to_csv("24_correlated_variants_sURS_model_results.csv", index=False)
+    correlated_24_variants.to_csv("24_correlated_sURS_model_results.csv", index=False)
 
 
 if __name__ == "__main__":
