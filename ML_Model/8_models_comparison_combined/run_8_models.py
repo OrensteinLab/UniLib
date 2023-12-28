@@ -8,7 +8,7 @@ import numpy as np
 import random
 import tensorflow as tf
 
-os.chdir("../Datasets/")
+os.chdir("../../Model Evaluation/Datasets/")
 
 # Set random seeds for reproducibility
 seed_value=42
@@ -210,7 +210,7 @@ def run_model(combination,all_data,train_data, test_data):
 
     for i in range(14):
 
-        # in each iteration we add 10,0000 more training example and then train and test the model
+        # in each iteration we add 10,000 more training example and then train and test the model
         print("iteration ", i)
 
         # use function to create CNN model
@@ -243,10 +243,9 @@ def run_model(combination,all_data,train_data, test_data):
         pred_meanFL = train_predict_model(cnn_model, train_seq, weights_train, meanFL_train, bins_train, use_bins, test_data)
 
         # calculate pearson correlation between predicted and true mean_fl
-        a = pearsonr(mean_fl_test, pred_meanFL.reshape(len(pred_meanFL)))[0]
-        print(a)
-        pearson_corr += [a]
-
+        r = pearsonr(mean_fl_test, pred_meanFL.reshape(len(pred_meanFL)))[0]
+        print(r)
+        pearson_corr += [r]
 
     print("pearson_corr =", pearson_corr)
     print("amount_of_data_points =", amount_of_data_points)
@@ -261,14 +260,14 @@ def run_model(combination,all_data,train_data, test_data):
 
 
 def main():
-
+    # Extract zip file
     extract_zip('unilib_variant_bindingsites_KM_mean_0_sorted.zip')
 
     # read csv file with 140k sequences and expression data
     all_data = pd.read_csv("unilib_variant_bindingsites_KM_mean_0_sorted.csv")
 
     # Select 2,000 random rows for the test set
-    test_set = all_data.head(10000).sample(n=2000,random_state=42)
+    test_set = all_data.head(10000).sample(n=2000, random_state=42)
 
     # Remove the selected rows from the training data
     train_data = all_data.drop(test_set.index)
