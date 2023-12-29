@@ -9,9 +9,9 @@
 
 # Introduction
 
-In the UNILIB study, we leveraged data obtained from a Massive Parallel Reported Assay (MPRA) that systematically measured gene expression for an oligo library comprising approximately 150,000 Synthetic Upstream Regulatory Sequences (sURS) in yeast. This repository includes the collection of scripts used for machine learning and data analysis throughout the study. It also includes the various datasets used in our investigation, as well as the trained machine learning models.
+In the UNILIB study, we leveraged data obtained from a Massive Parallel Reported Assay (MPRA) that systematically measured gene expression for an oligo library comprising approximately 150,000 Synthetic Upstream Regulatory Sequences (sURS) in yeast. This repository includes the collection of scripts used for machine learning and data analysis throughout the study. It also includes the datasets used in our investigation, as well as the trained machine learning models.
 
-Furthermore, the repository provides a script enabling predictions on new DNA sequence files using a user-selected machine learning model from the models used in the study. An additional script is available for training the CNN model used in the study on new DNA sequence and expression data.
+The repository also provides a script enabling predictions on new DNA sequence files using a user-selected machine learning model from the models used in the study. An additional script is available for training the CNN model used in the study on new DNA sequence and expression data.
 
 # Setup environment
 
@@ -84,8 +84,8 @@ python predict.py model_name output_file input_file
 ```
 
 * model_name: Specify the model to be used for predictions (ADM, AMM, or default MBO).<br>
-* output_file: The name of the file where predictions will be saved.<br>
-* input_file: The name of the file containing input DNA sequences.<br>
+* output_file: The path of the file where predictions will be saved.<br>
+* input_file: The path of the file containing input DNA sequences.<br>
 
 
 **DNA Sequence Encoding**
@@ -153,7 +153,7 @@ python train.py data_file model_name
 
 ```
 
-* data_file: The name of the file containing DNA sequences and their mean FL values.<br>
+* data_file: The npath of the file containing DNA sequences and their mean FL values.<br>
 * model_name: The name that the new trained model would be saved with
 
 
