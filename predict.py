@@ -1,6 +1,7 @@
 import argparse
 from keras.models import load_model
 import numpy as np
+import os
 
 def oneHotDeg(string):
     """
@@ -43,25 +44,27 @@ def main():
     output_file = args.output_file
     input_file = args.input_file
 
-    # load the chosen model
-    if model_name=="ADM":
-        model=load_model("ADM.h5")
-    elif model_name=="AMM":
-        model=load_model("AMM.h5")
-    else: # default MBO model
-        model=load_model("MBO.h5")
-
-    sequences=[]
+    sequences = []
     # read sequences from input file
-    with open(input_file,"r") as file:
+    with open(input_file, "r") as file:
         for line in file.readlines():
             sequences.append(line)
-            
+
     # ensure sequences are no longer than 101 nt
-    sequences=[seq if len(seq)<=101 else seq[:101] for seq in sequences]
+    sequences = [seq if len(seq) <= 101 else seq[:101] for seq in sequences]
 
     # turn sequences to One Hot vectors
-    sequences=np.array(list(map(oneHotDeg,sequences)))
+    sequences = np.array(list(map(oneHotDeg, sequences)))
+
+
+    # load the chosen model
+    if model_name=="ADM":
+        model=load_model("Model Evaluation/saved_models/ADM.h5")
+    elif model_name=="AMM":
+        model=load_model("Model Evaluation/saved_models/AMM.h5")
+    else: # default MBO model
+        model=load_model("Model Evaluation/saved_models/MBO.h5")
+
 
     # use model to make predictions on sequences
     predictions=[pred[0] for pred in model.predict(sequences)]
