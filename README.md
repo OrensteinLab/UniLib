@@ -1,4 +1,4 @@
-# UniLib - A universal system for boosting gene expression in Eukaryotic cell-lines
+# UniLib
 
 # Table of Contents
 1. [Introduction](#introduction)
