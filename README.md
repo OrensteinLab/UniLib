@@ -88,7 +88,7 @@ python predict.py model_name output_file input_file
 * input_file: The path of the file containing input DNA sequences.<br>
 
 
-**DNA Sequence Encoding**
+**Sequence Encoding**
   
 
 The script employs a one-hot encoding scheme to represent DNA sequences. Each nucleotide is mapped to a binary vector. The mapping is as follows:
