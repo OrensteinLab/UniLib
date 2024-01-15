@@ -10,6 +10,8 @@ import re
 
 seed_value = 42
 
+os.chdir("../Datasets/")
+
 os.environ['PYTHONHASHSEED'] = str(seed_value)
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
 
