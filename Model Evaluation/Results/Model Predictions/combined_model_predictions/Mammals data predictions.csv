@@ -1,4 +1,4 @@
-Unnamed: 0,variant,Unnamed: 2,glucose,glycerol,39c,NaCl,CHO-mean,HeLa-mean,ML prediction
+index: 0,variant,variant name,glucose,glycerol,39c,NaCl,CHO-mean,HeLa-mean,ML prediction
 1,Desert for 3-motif variants,gb20,990.3494382,2053.285033,1206.571333,1169.163233,3731.63,42.02520703,0.5072211
 2,Desert for 6-motifs variants,gb1,979.8625188,4810.1726,1110.529233,2099.167833,4847.87,39.65317413,0.5246764
 3,32_15G_5AC*,gb31,2259.275767,86.23586667,61.41446667,81.83563333,5812.16,51.20581073,0.7785701
