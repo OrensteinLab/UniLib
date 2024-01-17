@@ -83,7 +83,7 @@ python predict.py model_name output_file input_file
 
 ```
 
-* model_name: Specify the model to be used for predictions (ADM, AMM, or default MBO).<br>
+* model_name: Specify the model to be used for predictions (ADM, AMM, MLAM, or default MBO).<br>
 * output_file: The path of the file where predictions will be saved.<br>
 * input_file: The path of the file containing input DNA sequences.<br>
 
@@ -110,12 +110,13 @@ The script loads pre-trained models based on the specified model_name. Currently
 * ADM (All Data Model) - Trained on 20,000 sequences with the highest number of reads from the expreiment<br>
 * AMM (All Motif Model)- Trained on 2,435 sequences with 22 barcodes each <br>
 * MBO (Mixed Bases Only Model)- Trained on 2,098 sequences with 22 barcodes and at least one mixed base (K/M) <br>
+* MLAM (ML Additive Model)- Trained on the MBO dataset and uses a motif count vector in addition to sequence during the training process <br>
 
 
 **Input File Format**
 
 
-The input file should contain DNA sequences of synthetic upstream regulatory region, with each sequence on a new line. The sequence should be 101 bases in length for the models. The script reads these sequences from the input file.
+The input file should contain DNA sequences of synthetic upstream regulatory region, with each sequence on a new line. The sequence should be 101 bases in length for the ADM,AMM and MBO models. For the MLAM model, the sequences can be up to the length 186bp. The script reads these sequences from the input file.
 
 
 **Output**
@@ -153,7 +154,7 @@ python train.py data_file model_name
 
 ```
 
-* data_file: The npath of the file containing DNA sequences and their mean FL values.<br>
+* data_file: The path of the file containing DNA sequences and their mean FL values.<br>
 * model_name: The name that the new trained model would be saved with
 
 
