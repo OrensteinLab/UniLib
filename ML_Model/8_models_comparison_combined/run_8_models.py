@@ -8,7 +8,7 @@ import numpy as np
 import random
 import tensorflow as tf
 
-os.chdir("../../Model Evaluation/Datasets/")
+os.chdir("../../Model_Evaluation/Datasets/")
 
 # Set random seeds for reproducibility
 seed_value=42
