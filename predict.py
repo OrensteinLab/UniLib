@@ -127,13 +127,13 @@ def main():
 
     # load the chosen model
     if model_name=="ADM":
-        model=load_model("Model Evaluation/saved_models/ADM.h5")
+        model=load_model("Model_Evaluation/saved_models/ADM.h5")
     elif model_name=="AMM":
-        model=load_model("Model Evaluation/saved_models/AMM.h5")
+        model=load_model("Model_Evaluation/saved_models/AMM.h5")
     elif model_name=="MLAM":
-        model = load_model("Model Evaluation/saved_models/MLAM.h5")
+        model = load_model("Model_Evaluation/saved_models/MLAM.h5")
     else: # default MBO model
-        model=load_model("Model Evaluation/saved_models/MBO.h5")
+        model=load_model("Model_Evaluation/saved_models/MBO.h5")
 
     if model_name=="MLAM": # for ML additive model
 
