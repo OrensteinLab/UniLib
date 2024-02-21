@@ -138,7 +138,7 @@ def main():
     if model_name=="MLAM": # for ML additive model
 
         # read all motifs from table
-        motifs_table = pd.read_csv("Model Evaluation/Datasets/Unilib_Motifs_info.csv")
+        motifs_table = pd.read_csv("Model_Evaluation/Datasets/Unilib_Motifs_info.csv")
         motifs = list(motifs_table['Motif sequence'])  # read motifs from file
         motifs.remove('GAATATTCTAGAATATTC')  # remove rare motif
 
