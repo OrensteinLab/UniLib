@@ -78,9 +78,9 @@ def main():
     # fit model on training data
     cnn_model.fit(sequences, labels, epochs=5, batch_size=32, verbose=1, shuffle=True)
     # save trained model
-    cnn_model.save(str(model_name)+".h5")
+    cnn_model.save(str(model_name)+".keras")
 
-    print("Model saved successfully as: " + str(model_name) + ".h5")
+    print("Model saved successfully as: " + str(model_name) + ".keras")
 
 
 if __name__ == "__main__":
