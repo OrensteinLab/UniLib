@@ -176,7 +176,7 @@ The input file should contain DNA sequences of synthetic upstream regulatory reg
 
 **Output**
 
-The output of the program is the trained model saved in H5 file format
+The output of the program is the trained model saved in keras file format
 
 **Example**
 
@@ -187,7 +187,7 @@ python train.py data.txt my_model
 
 ```
 
-This command runs the script with train sequences from the file data.txt, and saves the trained model as my_model.h5
+This command runs the script with train sequences from the file data.txt, and saves the trained model as my_model.keras
 
 
 
