@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from scipy.stats.stats import pearsonr
 from itertools import product
-from keras.losses import Loss
+from tensorflow.keras.losses import Loss
 import zipfile
 import numpy as np
 import random
