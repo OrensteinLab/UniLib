@@ -1,7 +1,7 @@
 import argparse
 import tensorflow as tf
 import numpy as np
-from tf.keras.models import save_model
+from tensorflow.keras.models import save_model
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import *
 
